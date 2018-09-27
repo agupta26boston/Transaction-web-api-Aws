@@ -1,11 +1,14 @@
 # csye6225-fall2018-repo-template
+
 This the official private repository for the csye6225 network structures and cloud computing class. The repo contains the web application which will be deployed to a cloud service like AWS.
+
 
 Team Members:
 Ayush Gupta : gupta.ay@husky.neu.edu
 Prasad Kanade : kanade.p@husky.neu.edu
 Shivani Udupa : udupa.s@husky.neu.edu
 Thushanth Bengre : bengre.t@husky.neu.edu
+
 
 
 ### Prerequisites
