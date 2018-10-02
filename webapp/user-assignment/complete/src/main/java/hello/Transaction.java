@@ -8,21 +8,23 @@ import java.io.Serializable;
 public class Transaction implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
-    
+    @Column(name = "transaction_id")
+    private long transactionId;
+
     private String description;
     private String merchant;
     private String category;
     private String amount;
+
+    public long getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(long transactionId) {
+        this.transactionId = transactionId;
+    }
+
     private String date;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getDescription() {
         return description;

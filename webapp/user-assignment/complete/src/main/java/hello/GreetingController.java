@@ -56,6 +56,7 @@ public class GreetingController {
          return  "You are not logged in";
 
       }
+      // check if the user is in the system
 
             return "" +LocalDateTime.now();
 
@@ -95,6 +96,10 @@ public class GreetingController {
         else {
             return  "You are in the system";
         }
+    }
+    @RequestMapping("/transactions")
+    public void displayTransactions(@RequestBody User member){
+        System.out.println("displaying all the transactions for the use");
     }
 
 
