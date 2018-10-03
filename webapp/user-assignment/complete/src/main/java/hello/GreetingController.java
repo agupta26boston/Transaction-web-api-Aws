@@ -45,7 +45,6 @@ public class GreetingController {
 
     @RequestMapping("/time")
     public String greeting(HttpServletRequest request,HttpServletResponse response)
-
     {
 
         String check = request.getHeader("Authorization");
