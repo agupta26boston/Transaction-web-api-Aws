@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
 
 @Entity
 @Table(name="testlogin")
@@ -17,7 +14,6 @@ public class User implements Serializable {
 
     public User()
     {
-
     }
 
     public User(String emailId,String password){
@@ -37,9 +33,6 @@ public class User implements Serializable {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    //@JoinColumn(name = "transactionId" ,referencedColumnName = "transactionId")
-    private Set<Transaction> userTransactionList = new HashSet<>();
 
     public String getEmailId() {
         return emailId;
