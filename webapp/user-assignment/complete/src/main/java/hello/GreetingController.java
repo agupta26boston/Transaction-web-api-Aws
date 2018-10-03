@@ -47,16 +47,19 @@ public class GreetingController {
     public String greeting(HttpServletRequest request,HttpServletResponse response)
     {
 
+
+
         String check = request.getHeader("Authorization");
         System.out.println("" +check);
 
         if(check==null)
       {
-         return  "You are not logged in";
+        //  response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+         return  "You are not logged in" ;
 
       }
 
-            return "" +LocalDateTime.now();
+            return "" +LocalDateTime.now()  + " " +response.getStatus();
 
     }
 
