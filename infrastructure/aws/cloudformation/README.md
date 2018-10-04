@@ -8,6 +8,7 @@ For example, the template may declare that the application requires an Amazon El
 Identity and Access Management (IAM) policy.
 
 # csye6225-aws-cf-create-stack.sh
+
 This script takes a string name which it uses for the stack name it creates. The script uses a json file, known as a cloud
 formation template, to create the resources it needs. The script will create a VPC, Routetable, Route and an Internet gateway 
 which it will attach to the VPC.
@@ -27,3 +28,29 @@ To run this:
 ```
 ./csye6225-aws-cf-terminate-stack.sh <stackname>
 ```
+
+
+# csye6225-aws-cf-create-application-stack.sh
+
+This script takes a string name which it uses for the stack name it creates. The script uses a json file, known as a cloud
+formation template, to create the resources it needs. The script will create a VPC, Routetable, Route and an Internet gateway 
+which it will attach to the VPC. This will also create security group for EC2 instance and RDS instance along with EC2 instance 
+with the given specifications.
+
+To run this:
+```
+./csye6225-aws-cf-create-application-stack.sh <stackname>
+```
+
+# csye6225-aws-cf-terminate-application-stack.sh
+
+This script takes a string which is the name of the stack you want to delete. The script tears down all the resources which is 
+attached to the stack with the stack name provided. The script will tear down the VPC, Routetable, Route and an Internet gateway 
+which is attached to the VPC.This will also tear down security group for EC2 instance and RDS instance along with EC2 instance 
+with the given specifications.
+
+To run this:
+```
+./csye6225-aws-cf-terminate-application-stack.sh <stackname>
+```
+
