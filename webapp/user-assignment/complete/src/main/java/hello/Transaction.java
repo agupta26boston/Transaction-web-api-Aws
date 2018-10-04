@@ -2,29 +2,42 @@ package hello;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.*;
 
 @Entity
 @Table(name="transaction")
 public class Transaction implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "transaction_id")
-    private long transactionId;
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@Column(name = "transaction_id")
+    @Column(unique = true, nullable = false)
+    private String transactionId;
 
     private String description;
     private String merchant;
     private String category;
     private String amount;
+    private String date;
+    @OneToOne(targetEntity = User.class)
+    private User user;
 
-    public long getTransactionId() {
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getTransactionId() {
         return transactionId;
     }
 
-    public void setTransactionId(long transactionId) {
+    public void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
     }
 
-    private String date;
+
 
     public String getDescription() {
         return description;
@@ -67,5 +80,6 @@ public class Transaction implements Serializable {
     }
 
     public Transaction() {
+
     }
 }

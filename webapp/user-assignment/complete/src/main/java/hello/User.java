@@ -37,9 +37,9 @@ public class User implements Serializable {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    //@JoinColumn(name = "transactionId" ,referencedColumnName = "transactionId")
-    private Set<Transaction> userTransactionList = new HashSet<>();
+//    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+//    @JoinColumn(name = "userId")
+//    private Set<Transaction> userTransactionList = new HashSet<>();
 
     public Long getUserId() {
         return userId;
@@ -49,13 +49,13 @@ public class User implements Serializable {
         this.userId = userId;
     }
 
-    public Set<Transaction> getUserTransactionList() {
-        return userTransactionList;
-    }
-
-    public void setUserTransactionList(Set<Transaction> userTransactionList) {
-        this.userTransactionList = userTransactionList;
-    }
+//    public Set<Transaction> getUserTransactionList() {
+//        return userTransactionList;
+//    }
+//
+//    public void setUserTransactionList(Set<Transaction> userTransactionList) {
+//        this.userTransactionList = userTransactionList;
+//    }
 
     public String getEmailId() {
         return emailId;

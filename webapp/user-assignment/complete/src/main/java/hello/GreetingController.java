@@ -1,5 +1,6 @@
 package hello;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
@@ -20,8 +21,10 @@ import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.mindrot.jbcrypt.BCrypt;
+import java.util.*;
 
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +41,9 @@ public class GreetingController {
     private GreetingService greetingService;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
 
 
@@ -102,35 +108,90 @@ public class GreetingController {
     }
 
     @RequestMapping(value= "/gt",method=RequestMethod.GET,produces = "application/json")
-    public String getTransaction(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+    public ResponseEntity<String> getTransaction(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
         if (loggedInUser!=null)
         {
-        User user =userRepository.findUserByEmailId(loggedInUser.getEmailId());
+        List<Transaction> transactionList =transactionRepository.findTransactionByUserUserId(loggedInUser.getUserId());
+
 
             ObjectMapper mapperObj = new ObjectMapper();
-            String JSON = mapperObj.writeValueAsString(user.getUserTransactionList());
+            String JSON = mapperObj.writeValueAsString(transactionList);
             System.out.println(JSON);
 
-          //  Gson gson= new Gson();
 
-         // return gson.toJson( user.getUserTransactionList());
-
-            return JSON;
+            return new ResponseEntity<String>(JSON, HttpStatus.OK);
         }
 
-        return "UnAuthorized";
+        return new ResponseEntity<String>( "UnAuthorized",HttpStatus.UNAUTHORIZED);
 
     }
 
-    @RequestMapping(value= "/dt/{}",method=RequestMethod.DELETE,produces = "application/json")
-    public void deleteTransaction(@PathVariable String transactionId,HttpServletRequest request,HttpServletResponse response)
-    {
+    @RequestMapping(value= "/logout",method=RequestMethod.GET,produces = "application/json")
+    public String logout(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+        loggedInUser=null;
 
-        if (loggedInUser!=null) {
-            User user = userRepository.findUserByEmailId(loggedInUser.getEmailId());
+        return "User Logged out";
+    }
+
+
+
+    @RequestMapping(value= "/transaction/{id}",method=RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity<String> updateTransaction(@PathVariable("id") String transactionId, HttpServletResponse response, @RequestBody Transaction transaction) throws IOException {
+        if(loggedInUser!=null)
+        {
+            if(transactionRepository.findTransactionByTransactionId(transactionId)!=null) {
+                Transaction got=transactionRepository.findTransactionByTransactionId(transactionId);
+                transaction.setTransactionId(got.getTransactionId());
+                got = transaction;
+
+                transactionRepository.save(got);
+                ObjectMapper mapperObj = new ObjectMapper();
+                String JSON = mapperObj.writeValueAsString(transaction);
+
+                return  new ResponseEntity<String>("Created", HttpStatus.CREATED);
+                //return JSON;
+
+
+            }
+            else
+            {
+                return  new ResponseEntity<String>("Bad Request", HttpStatus.BAD_REQUEST);
+            }
+
         }
-        userRepository.deleteById(Long.parseLong(transactionId));
+        else
+        {
+            return  new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
 
+
+    }
+
+    @RequestMapping(value= "/transaction/{id}",method=RequestMethod.DELETE, produces = "application/json")
+    public ResponseEntity<String> deleteTransaction(@PathVariable("id") String transactionId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (loggedInUser==null)
+        {
+            return  new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+
+        }
+
+       else if (loggedInUser!=null ) {
+
+           if (transactionRepository.findTransactionByTransactionId(transactionId)!=null) {
+
+               transactionRepository.deleteById(transactionId);
+
+               return  new ResponseEntity<String>("NO COntent", HttpStatus.NO_CONTENT);
+           }
+           else
+           {
+               return  new ResponseEntity<String>("Bad request", HttpStatus.BAD_REQUEST);
+
+           }
+        }
+
+
+return null;
     }
 
     @RequestMapping("/user")
@@ -167,23 +228,30 @@ public class GreetingController {
         }
     }
     @RequestMapping(value="/transactions",method=RequestMethod.POST, produces = "application/json")
-    public void displayTransactions(@RequestBody Transaction transaction){
-        System.out.println("displaying all the transactions for the use");
+    public ResponseEntity<String> displayTransactions(@RequestBody Transaction transaction)  {
 
-        Set<Transaction> transactionsSet= loggedInUser.getUserTransactionList();
+        // setting the uuui for the transaction
+        if(loggedInUser!=null) {
+            UUID uuid = UUID.randomUUID();
+            String stringUuid = uuid.toString();
+            transaction.setTransactionId(stringUuid);
+            transaction.setUser(loggedInUser);
+            System.out.println("this is the id " + transaction.getTransactionId());
+            transactionRepository.save(transaction);
+            ObjectMapper mapperObj = new ObjectMapper();
+            String JSON = null;
+            try {
+                JSON = mapperObj.writeValueAsString(transaction);
+            } catch (JsonProcessingException e) {
+                return  new ResponseEntity<String>("Bad Request", HttpStatus.BAD_REQUEST);
+            }
+            System.out.println("this is done");
+            return new ResponseEntity<String>(JSON,HttpStatus.CREATED);
+        }
+        else {
+            return new ResponseEntity<String>( "UnAuthorized",HttpStatus.UNAUTHORIZED);
 
-        transactionsSet.add(transaction);
-
-        userRepository.save(loggedInUser);
-
-
-
-  System.out.println("added successfully" +transaction + "size " + transactionsSet.size());
-
-
-
-        System.out.println("" +loggedInUser);
-
+        }
 
     }
 
