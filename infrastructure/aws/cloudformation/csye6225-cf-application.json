@@ -4,6 +4,42 @@
   "Description" : "csye6225 application formation template",
 
 "Parameters": {
+  "DBName": {
+    "Description": "Database Name",
+    "Type": "String"
+  },
+  "DBUser": {
+    "Description": "Database User",
+    "Type": "String"
+  },
+  "DBPassword": {
+    "Description": "Database Password",
+    "Type": "String"
+  },
+  "bucketName": {
+    "Description": "Bucket name",
+    "Type": "String"
+  },
+  "DBEngine": {
+    "Description": "DB Engine",
+    "Type": "String"
+  },
+  "DBAllocatedStorage": {
+    "Description": "DB AllocatedStorage",
+    "Type": "String"
+  },
+  "DBEngineVersion": {
+    "Description": "DB EngineVersion",
+    "Type": "String"
+  },
+  "DBInstanceClass": {
+    "Description": "DB InstanceClass",
+    "Type": "String"
+  },
+  "DBInstanceIdentifier": {
+    "Description": "DBInstanceIdentifier",
+    "Type": "String"
+  },
   "EC2ImageId":{
       "Description": "EC2 ImageId",
       "Type": "String"
@@ -100,23 +136,53 @@
            }
          },
 
-         "PrivateSubnet" : {
-           "Type" : "AWS::EC2::Subnet",
-           "Properties" : {
-              "Tags" : [ {"Key" : "Name", "Value" :"csye6225-PrivateSubnet"} ],
-              "VpcId" : { "Ref" : "VPC" },
-              "CidrBlock" : "10.0.1.0/24",
-              "AvailabilityZone" : "us-east-1a"
-         }
-       },
-        
-         "PrivateSubnetRouteTableAssociation" : {
-           "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-           "Properties" : {
-              "SubnetId" : { "Ref": "PrivateSubnet" },
-              "RouteTableId" : { "Ref" : "PrivateRouteTable" }
-           }
-         },
+         "DBServerSubnet1" : {
+          "Type" : "AWS::EC2::Subnet",
+          "Properties" : {
+             "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnet1"} ],
+             "VpcId" : { "Ref" : "VPC" },
+             "CidrBlock" : "10.0.1.0/24",
+             "AvailabilityZone" : "us-east-1a"
+        }
+      },
+        "DBServerSubnet2" : {
+          "Type" : "AWS::EC2::Subnet",
+          "Properties" : {
+             "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnet2"} ],
+             "VpcId" : { "Ref" : "VPC" },
+             "CidrBlock" : "10.0.2.0/24",
+             "AvailabilityZone" : "us-east-1b"
+        }
+      },
+
+        "NVNDBSubnetGroup": {
+                    "Type": "AWS::RDS::DBSubnetGroup",
+                    "Properties": {
+                        "DBSubnetGroupDescription": "Subnet group for RDS",
+                        "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnetGroup"}],
+                        "SubnetIds": [{
+                            "Ref": "DBServerSubnet1"
+                        },
+                        {
+                            "Ref": "DBServerSubnet2"
+                        }]
+                    }
+                },
+        "DBSubnetRouteTableAssociation1" : {
+          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties" : {
+             "SubnetId" : { "Ref": "DBServerSubnet1" },
+             "RouteTableId" : { "Ref" : "PrivateRouteTable" }
+          }
+        },
+        "DBSubnetRouteTableAssociation2" : {
+          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties" : {
+             "SubnetId" : { "Ref": "DBServerSubnet2" },
+             "RouteTableId" : { "Ref" : "PrivateRouteTable" }
+          }
+        },
+
           "NVNCloudSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
@@ -154,8 +220,8 @@
                "SecurityGroupIngress" : [
                  {
                    "IpProtocol" : "tcp",
-                   "FromPort" : "3306",
-                   "ToPort" : "3306",
+                   "FromPort" : "5432",
+                   "ToPort" : "5432",
                    "SourceSecurityGroupId" : { "Ref" : "NVNCloudSecurityGroup"}
                 }]
              }
@@ -170,16 +236,65 @@
            "SubnetId" : { "Ref": "PublicSubnet"},
            "SecurityGroupIds" : [{ "Fn::GetAtt": [ "NVNCloudSecurityGroup", "GroupId" ] }],
           "BlockDeviceMappings": [
-               {
-                   "DeviceName" : { "Ref": "EbsDeviceName"},
-                   "Ebs" : {
-                      "VolumeType" : { "Ref": "EbsVolumeType"},
-                      "VolumeSize" :{ "Ref": "EbsVolumeSize"},
-                      "DeleteOnTermination" : false
-                  }
-               }
-           ]
+                {
+                    "DeviceName" : { "Ref": "EbsDeviceName"},
+                    "Ebs" : {
+                        "VolumeType" : { "Ref": "EbsVolumeType"},
+                        "VolumeSize" :{ "Ref": "EbsVolumeSize"},
+                        "DeleteOnTermination" : false
+                    }
+                }
+            ]
+          }
+          },
+        
+        "myDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+      "AttributeDefinitions": [
+        {
+          "AttributeName": "Id",
+          "AttributeType": "S"
         }
+      ],
+      "KeySchema": [
+        {
+          "AttributeName": "Id",
+          "KeyType": "HASH"
         }
+      ],
+      "ProvisionedThroughput": {
+        "ReadCapacityUnits": "5",
+        "WriteCapacityUnits": "5"
+      },
+      "TableName": "csye6225"
+          }
+      },
+
+      "myS3Bucket": {
+        "Type": "AWS::S3::Bucket",
+        "Properties": {
+          "BucketName": { "Ref": "bucketName" }
+        }
+      },
+
+      "MyDB": {
+        "Type": "AWS::RDS::DBInstance",
+        "Properties": {
+          "Engine": { "Ref": "DBEngine"},
+          "AllocatedStorage": { "Ref": "DBAllocatedStorage"},
+          "EngineVersion": { "Ref": "DBEngineVersion"},
+          "DBInstanceClass": { "Ref": "DBInstanceClass"},
+          "MultiAZ": "false",
+          "DBInstanceIdentifier": { "Ref": "DBInstanceIdentifier"},
+          "MasterUsername": { "Ref": "DBUser" },
+          "MasterUserPassword": { "Ref": "DBPassword" },
+          "PubliclyAccessible": "false",
+          "DBName": { "Ref": "DBName" },
+          "VPCSecurityGroups": [{ "Ref" : "NVNCloudRDSSecurityGroup" }],
+          "DBSubnetGroupName": { "Ref" : "NVNDBSubnetGroup" }
+        },
+        "DeletionPolicy": "Snapshot"
+      }
       }
 }
