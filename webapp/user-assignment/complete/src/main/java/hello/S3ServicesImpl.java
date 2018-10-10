@@ -30,7 +30,7 @@ public class S3ServicesImpl implements S3Services{
             metadata.setContentLength(file.getSize());
             s3client.putObject(bucketName, keyName, file.getInputStream(), metadata);
             //saving the meta data onto the database
-            
+
         } catch(IOException ioe) {
             logger.error("IOException: " + ioe.getMessage());
         } catch (AmazonServiceException ase) {
