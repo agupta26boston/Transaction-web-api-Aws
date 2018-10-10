@@ -107,3 +107,6 @@ venv.bak/
 .idea/*
 webapp/user-assignment/complete/.idea/workspace.xml
 
+#property filess
+*.properties
+
