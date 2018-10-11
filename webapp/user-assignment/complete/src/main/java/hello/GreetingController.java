@@ -142,15 +142,48 @@ public class GreetingController {
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
                 Transaction got = transactionRepository.findTransactionByTransactionId(transactionId);
                 transaction.setTransactionId(got.getTransactionId());
+                transaction.setUser(loggedInUser);
                 got = transaction;
 
                 transactionRepository.save(got);
                 ObjectMapper mapperObj = new ObjectMapper();
                 String JSON = mapperObj.writeValueAsString(transaction);
 
-                return new ResponseEntity<String>("Created", HttpStatus.CREATED);
+                return new ResponseEntity<String>("Created"+JSON, HttpStatus.CREATED);
                 //return JSON;
 
+
+            } else {
+                return new ResponseEntity<String>("Bad Request", HttpStatus.BAD_REQUEST);
+            }
+
+        } else {
+            return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
+
+
+    }
+    @RequestMapping(value = "/transaction/{id}/attachment/{attachmentId}", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity<String> updateAttachment(@PathVariable("id") String transactionId, @PathVariable("id") String attachmentId, @RequestBody Attachment attachment) throws IOException {
+        if (loggedInUser != null) {
+            if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
+                Transaction got = transactionRepository.findTransactionByTransactionId(transactionId);
+                 if(attachementRepository.findAttachmentByAttachmentId(attachmentId) != null) {
+                     Attachment existingAttachment = attachementRepository.findAttachmentByAttachmentId(attachmentId);
+                     attachment.setAttachmentId(attachmentId);
+                     attachment.setTransaction(got);
+                     existingAttachment = attachment;
+                     attachementRepository.save(existingAttachment);
+
+                     ObjectMapper mapperObj = new ObjectMapper();
+                     String JSON = mapperObj.writeValueAsString(attachment);
+
+                     return new ResponseEntity<String>("Created"+JSON, HttpStatus.CREATED);
+
+                 }
+                 else {
+                     return new ResponseEntity<String>("Bad Request", HttpStatus.BAD_REQUEST);
+                 }
 
             } else {
                 return new ResponseEntity<String>("Bad Request", HttpStatus.BAD_REQUEST);
@@ -190,12 +223,16 @@ public class GreetingController {
             return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 
         } else if (loggedInUser != null) {
+            if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
 
-            if (attachementRepository.findAttachmentByAttachmentId(attachmentId)!= null) {
+                 if (attachementRepository.findAttachmentByAttachmentId(attachmentId)!= null) {
+                     attachementRepository.deleteById(attachmentId);
+                     return new ResponseEntity<String>("NO COntent", HttpStatus.NO_CONTENT);
+                 }
+                 else {
+                     return new ResponseEntity<String>("Bad request", HttpStatus.BAD_REQUEST);
+                 }
 
-
-              attachementRepository.deleteById(attachmentId);
-                return new ResponseEntity<String>("NO COntent", HttpStatus.NO_CONTENT);
             } else {
                 return new ResponseEntity<String>("Bad request", HttpStatus.BAD_REQUEST);
 
@@ -297,6 +334,7 @@ public class GreetingController {
         return new ResponseEntity<String>("UnAuthorized", HttpStatus.UNAUTHORIZED);
 
     }
+
 
 
     @PostMapping(value = "/transactions/{id}/attachments")
