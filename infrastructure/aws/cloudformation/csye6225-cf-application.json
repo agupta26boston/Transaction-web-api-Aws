@@ -117,10 +117,10 @@
            }
          },
 
-         "PublicSubnet" : {
+         "PublicSubnet1" : {
            "Type" : "AWS::EC2::Subnet",
            "Properties" : {
-              "Tags" : [ {"Key" : "Name", "Value" :"csye6225-PublicSubnet"} ],
+              "Tags" : [ {"Key" : "Name", "Value" :"csye6225-PublicSubnet1"} ],
               "VpcId" : { "Ref" : "VPC" },
               "MapPublicIpOnLaunch" : true,
               "CidrBlock" : "10.0.0.0/24",
@@ -128,20 +128,56 @@
             }
          },
 
-         "PublicSubnetRouteTableAssociation" : {
+         "PublicSubnet2" : {
+          "Type" : "AWS::EC2::Subnet",
+          "Properties" : {
+             "Tags" : [ {"Key" : "Name", "Value" :"csye6225-PublicSubnet2"} ],
+             "VpcId" : { "Ref" : "VPC" },
+             "MapPublicIpOnLaunch" : true,
+             "CidrBlock" : "10.0.1.0/24",
+             "AvailabilityZone" : "us-east-1b"
+           }
+        },
+
+        "PublicSubnet3" : {
+          "Type" : "AWS::EC2::Subnet",
+          "Properties" : {
+             "Tags" : [ {"Key" : "Name", "Value" :"csye6225-PublicSubnet3"} ],
+             "VpcId" : { "Ref" : "VPC" },
+             "MapPublicIpOnLaunch" : true,
+             "CidrBlock" : "10.0.2.0/24",
+             "AvailabilityZone" : "us-east-1c"
+           }
+        },
+
+         "PublicSubnet1RouteTableAssociation1" : {
            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
            "Properties" : {
-              "SubnetId" : { "Ref" : "PublicSubnet" },
+              "SubnetId" : { "Ref" : "PublicSubnet1" },
               "RouteTableId" : { "Ref" : "RouteTable" }
            }
          },
+         "PublicSubnet2RouteTableAssociation2" : {
+          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties" : {
+             "SubnetId" : { "Ref" : "PublicSubnet2" },
+             "RouteTableId" : { "Ref" : "RouteTable" }
+          }
+        },
+        "PublicSubnet3RouteTableAssociation3" : {
+          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties" : {
+             "SubnetId" : { "Ref" : "PublicSubnet3" },
+             "RouteTableId" : { "Ref" : "RouteTable" }
+          }
+        },
 
          "DBServerSubnet1" : {
           "Type" : "AWS::EC2::Subnet",
           "Properties" : {
              "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnet1"} ],
              "VpcId" : { "Ref" : "VPC" },
-             "CidrBlock" : "10.0.1.0/24",
+             "CidrBlock" : "10.0.3.0/24",
              "AvailabilityZone" : "us-east-1a"
         }
       },
@@ -150,24 +186,20 @@
           "Properties" : {
              "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnet2"} ],
              "VpcId" : { "Ref" : "VPC" },
-             "CidrBlock" : "10.0.2.0/24",
+             "CidrBlock" : "10.0.4.0/24",
              "AvailabilityZone" : "us-east-1b"
         }
       },
+      "DBServerSubnet3" : {
+        "Type" : "AWS::EC2::Subnet",
+        "Properties" : {
+           "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnet3"} ],
+           "VpcId" : { "Ref" : "VPC" },
+           "CidrBlock" : "10.0.5.0/24",
+           "AvailabilityZone" : "us-east-1c"
+      }
+    },
 
-        "NVNDBSubnetGroup": {
-                    "Type": "AWS::RDS::DBSubnetGroup",
-                    "Properties": {
-                        "DBSubnetGroupDescription": "Subnet group for RDS",
-                        "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnetGroup"}],
-                        "SubnetIds": [{
-                            "Ref": "DBServerSubnet1"
-                        },
-                        {
-                            "Ref": "DBServerSubnet2"
-                        }]
-                    }
-                },
         "DBSubnetRouteTableAssociation1" : {
           "Type" : "AWS::EC2::SubnetRouteTableAssociation",
           "Properties" : {
@@ -182,6 +214,31 @@
              "RouteTableId" : { "Ref" : "PrivateRouteTable" }
           }
         },
+
+        "DBSubnetRouteTableAssociation3" : {
+          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties" : {
+             "SubnetId" : { "Ref": "DBServerSubnet3" },
+             "RouteTableId" : { "Ref" : "PrivateRouteTable" }
+          }
+        },
+
+        "NVNDBSubnetGroup": {
+          "Type": "AWS::RDS::DBSubnetGroup",
+          "Properties": {
+              "DBSubnetGroupDescription": "Subnet group for RDS",
+              "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnetGroup"}],
+              "SubnetIds": [{
+                  "Ref": "DBServerSubnet1"
+              },
+              {
+                  "Ref": "DBServerSubnet2"
+              },
+              {
+                "Ref": "DBServerSubnet3"
+            }]
+          }
+      },
 
           "NVNCloudSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
@@ -226,14 +283,13 @@
                 }]
              }
           },
-          
-          
+
     "EC2Instance": {
         "Type": "AWS::EC2::Instance",
         "Properties": {
           "ImageId": { "Ref": "EC2ImageId" },
           "InstanceType": { "Ref": "EC2InstanceType" },
-           "SubnetId" : { "Ref": "PublicSubnet"},
+           "SubnetId" : { "Ref": "PublicSubnet1"},
            "SecurityGroupIds" : [{ "Fn::GetAtt": [ "NVNCloudSecurityGroup", "GroupId" ] }],
           "BlockDeviceMappings": [
                 {
@@ -248,7 +304,7 @@
           }
           },
         
-        "myDynamoDBTable": {
+      "myDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
           "Properties": {
       "AttributeDefinitions": [
@@ -292,7 +348,7 @@
           "PubliclyAccessible": "false",
           "DBName": { "Ref": "DBName" },
           "VPCSecurityGroups": [{ "Ref" : "NVNCloudRDSSecurityGroup" }],
-          "DBSubnetGroupName": { "Ref" : "NVNDBSubnetGroup" }
+          "DBSubnetGroupName": { "Ref" : "NVNDBSubnetGroup" }        
         },
         "DeletionPolicy": "Snapshot"
       }
