@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -344,9 +345,11 @@ public class GreetingController {
     return null;
     }
 
-    @Autowired
+
+    @Autowired(required = false)
     S3Services s3Services;
 
+    @Profile("aws")
     @PostMapping("/api/file/upload")
     public String uploadMultipartFile(@RequestParam("keyname") String keyName, @RequestParam("uploadfile") MultipartFile file) {
         s3Services.uploadFile(keyName, file);
