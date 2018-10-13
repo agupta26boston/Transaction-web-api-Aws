@@ -107,3 +107,10 @@ venv.bak/
 .idea/*
 webapp/user-assignment/complete/.idea/workspace.xml
 
+#property filess
+*.properties
+
+/webapp/user-assignment/complete/src/main/resources/application.properties
+
+/webapp/user-assignment/complete/src/main/resources/application-aws.properties
+
