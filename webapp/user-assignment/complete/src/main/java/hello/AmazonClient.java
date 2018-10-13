@@ -31,10 +31,7 @@ public class AmazonClient {
     public AmazonS3 s3client() {
 
         AWSCredentialsProviderChain providerChain= new AWSCredentialsProviderChain(InstanceProfileCredentialsProvider.getInstance(),new ProfileCredentialsProvider());
-     //   BasicAWSCredentials awsCreds = new BasicAWSCredentials(awsId, awsKey);
-//        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-//                .withCredentials(new InstanceProfileCredentialsProvider(false))
-//                .build();
+
 
         return AmazonS3ClientBuilder.standard().withCredentials(providerChain).build();
     }
