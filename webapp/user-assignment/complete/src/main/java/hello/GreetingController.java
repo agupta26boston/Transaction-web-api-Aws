@@ -1,5 +1,6 @@
 package hello;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -172,6 +173,16 @@ public class GreetingController {
                  if(attachementRepository.findAttachmentByAttachmentId(attachmentId) != null) {
 
                      Attachment existingAttachment = attachementRepository.findAttachmentByAttachmentId(attachmentId);
+                     String existingpath=existingAttachment.getUrl();
+                     File oldfile = new File(existingpath);
+                     if(oldfile.delete())
+                     {
+                         System.out.print("old file deleted");
+                     } else {
+                         System.out.print("old file could not be deleted");
+                     }
+
+
                      System.out.println("attachment"+existingAttachment.getUrl());
                      byte[] bytes = new byte[0];
                      bytes = file.getBytes();
@@ -232,6 +243,15 @@ public class GreetingController {
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
 
                  if (attachementRepository.findAttachmentByAttachmentId(attachmentId)!= null) {
+                     Attachment existingAttachment = attachementRepository.findAttachmentByAttachmentId(attachmentId);
+                     String existingpath=existingAttachment.getUrl();
+                     File oldfile = new File(existingpath);
+                     if(oldfile.delete())
+                     {
+                         System.out.print("old file deleted");
+                     } else {
+                         System.out.print("old file could not be deleted");
+                     }
                      attachementRepository.deleteById(attachmentId);
                      return new ResponseEntity<String>("NO COntent", HttpStatus.NO_CONTENT);
                  }
