@@ -389,7 +389,7 @@ public class GreetingController {
     }
 
 
-    @Autowired(required = false)
+    @Autowired
     S3Services s3Services;
 
     @Profile("aws")
