@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -142,18 +143,56 @@ public class GreetingController {
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
                 Transaction got = transactionRepository.findTransactionByTransactionId(transactionId);
                 transaction.setTransactionId(got.getTransactionId());
+                transaction.setUser(loggedInUser);
                 got = transaction;
 
                 transactionRepository.save(got);
                 ObjectMapper mapperObj = new ObjectMapper();
                 String JSON = mapperObj.writeValueAsString(transaction);
 
-                return new ResponseEntity<String>("Created", HttpStatus.CREATED);
+                return new ResponseEntity<String>("Created"+JSON, HttpStatus.CREATED);
                 //return JSON;
 
 
             } else {
                 return new ResponseEntity<String>("Bad Request", HttpStatus.BAD_REQUEST);
+            }
+
+        } else {
+            return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
+
+
+    }
+    @RequestMapping(value = "/transaction/{id}/attachment/{attachmentId}", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity<String> updateAttachment(@PathVariable("id") String transactionId, @PathVariable("attachmentId") String attachmentId, @RequestPart(value = "file") MultipartFile file) throws IOException {
+        if (loggedInUser != null) {
+            if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
+                Transaction got = transactionRepository.findTransactionByTransactionId(transactionId);
+                 if(attachementRepository.findAttachmentByAttachmentId(attachmentId) != null) {
+
+                     Attachment existingAttachment = attachementRepository.findAttachmentByAttachmentId(attachmentId);
+                     System.out.println("attachment"+existingAttachment.getUrl());
+                     byte[] bytes = new byte[0];
+                     bytes = file.getBytes();
+                     Path path = Paths.get("\\META-INF.resources\\images\\" + file.getOriginalFilename());
+                     //write the file to the correct place
+                     Files.write(path, bytes);
+                     existingAttachment.setUrl(path.toString());
+                     attachementRepository.save(existingAttachment);
+
+                     ObjectMapper mapperObj = new ObjectMapper();
+                     String JSON = mapperObj.writeValueAsString(existingAttachment);
+
+                     return new ResponseEntity<String>("Created"+JSON, HttpStatus.CREATED);
+
+                 }
+                 else {
+                     return new ResponseEntity<String>("Bad Request: No attachment", HttpStatus.BAD_REQUEST);
+                 }
+
+            } else {
+                return new ResponseEntity<String>("Bad Request: no transaction", HttpStatus.BAD_REQUEST);
             }
 
         } else {
@@ -190,12 +229,16 @@ public class GreetingController {
             return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 
         } else if (loggedInUser != null) {
+            if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
 
-            if (attachementRepository.findAttachmentByAttachmentId(attachmentId)!= null) {
+                 if (attachementRepository.findAttachmentByAttachmentId(attachmentId)!= null) {
+                     attachementRepository.deleteById(attachmentId);
+                     return new ResponseEntity<String>("NO COntent", HttpStatus.NO_CONTENT);
+                 }
+                 else {
+                     return new ResponseEntity<String>("Bad request", HttpStatus.BAD_REQUEST);
+                 }
 
-
-              attachementRepository.deleteById(attachmentId);
-                return new ResponseEntity<String>("NO COntent", HttpStatus.NO_CONTENT);
             } else {
                 return new ResponseEntity<String>("Bad request", HttpStatus.BAD_REQUEST);
 
@@ -241,7 +284,7 @@ public class GreetingController {
 
     @RequestMapping(value = "/transactions", method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<String> displayTransactions(@RequestBody Transaction transaction) {
-
+       System.out.println(loggedInUser);
         // setting the uuui for the transaction
         if (loggedInUser != null) {
             UUID uuid = UUID.randomUUID();
@@ -299,6 +342,7 @@ public class GreetingController {
     }
 
 
+
     @PostMapping(value = "/transactions/{id}/attachments")
     public ResponseEntity<String> postAttachment(@PathVariable("id") String TransactionId, @RequestPart(value = "file") MultipartFile file) {
 
@@ -344,9 +388,11 @@ public class GreetingController {
     return null;
     }
 
-    @Autowired
+
+    @Autowired(required = false)
     S3Services s3Services;
 
+    @Profile("aws")
     @PostMapping("/api/file/upload")
     public String uploadMultipartFile(@RequestParam("keyname") String keyName, @RequestParam("uploadfile") MultipartFile file) {
         s3Services.uploadFile(keyName, file);
