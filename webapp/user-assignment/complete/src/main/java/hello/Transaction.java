@@ -18,8 +18,11 @@ public class Transaction implements Serializable {
     private String category;
     private String amount;
     private String date;
+
+
     @OneToOne(targetEntity = User.class)
     private User user;
+
 
     public User getUser() {
         return user;

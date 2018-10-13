@@ -138,7 +138,7 @@ public class GreetingController {
     }
 
 
-    @RequestMapping(value = "/transaction/{id}", method = RequestMethod.PUT, produces = "application/json")
+    @RequestMapping(value = "/transactions/{id}", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity<String> updateTransaction(@PathVariable("id") String transactionId, HttpServletResponse response, @RequestBody Transaction transaction) throws IOException {
         if (loggedInUser != null) {
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
@@ -165,7 +165,7 @@ public class GreetingController {
 
 
     }
-    @RequestMapping(value = "/transaction/{id}/attachment/{attachmentId}", method = RequestMethod.PUT, produces = "application/json")
+    @RequestMapping(value = "/transactions/{id}/attachments/{attachmentId}", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity<String> updateAttachment(@PathVariable("id") String transactionId, @PathVariable("attachmentId") String attachmentId, @RequestPart(value = "file") MultipartFile file) throws IOException {
         if (loggedInUser != null) {
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
@@ -213,7 +213,7 @@ public class GreetingController {
 
     }
 
-    @RequestMapping(value = "/transaction/{id}", method = RequestMethod.DELETE, produces = "application/json")
+    @RequestMapping(value = "/transactions/{id}", method = RequestMethod.DELETE, produces = "application/json")
     public ResponseEntity<String> deleteTransaction(@PathVariable("id") String transactionId, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (loggedInUser == null) {
             return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
@@ -234,7 +234,7 @@ public class GreetingController {
 
         return null;
     }
-    @RequestMapping(value = "/transaction/{id}/attachment/{attachmentid}", method = RequestMethod.DELETE, produces = "application/json")
+    @RequestMapping(value = "/transactions/{id}/attachments/{attachmentid}", method = RequestMethod.DELETE, produces = "application/json")
     public ResponseEntity<String> deleteAttachment(@PathVariable("id") String transactionId, @PathVariable("attachmentid") String attachmentId, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (loggedInUser == null) {
             return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
@@ -386,6 +386,10 @@ public class GreetingController {
                     attachment.setAttachmentId(stringUuid);
                     attachment.setUrl(path.toString());
                     attachment.setTransaction(transaction);
+
+                    //transaction.getAttachmentList().add(attachment);
+                    //transactionRepository.save(transaction);
+
                     attachementRepository.save(attachment);
                     ObjectMapper mapperObj = new ObjectMapper();
                     String JSON = null;
