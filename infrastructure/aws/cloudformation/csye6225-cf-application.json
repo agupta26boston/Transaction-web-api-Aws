@@ -3,7 +3,7 @@
 
   "Description" : "csye6225 application formation template",
 
-"Parameters": {
+   "Parameters": {
   "DBName": {
     "Description": "Database Name",
     "Type": "String"
@@ -60,9 +60,8 @@
       "Description": "Ebs VolumeSize",
       "Type": "Number"
     }
-  },
-
-"Resources" : {
+    },
+   "Resources" : {
           "VPC":{
             "Type":"AWS::EC2::VPC",
             "Properties":{
@@ -171,8 +170,7 @@
              "RouteTableId" : { "Ref" : "RouteTable" }
           }
         },
-
-         "DBServerSubnet1" : {
+        "DBServerSubnet1" : {
           "Type" : "AWS::EC2::Subnet",
           "Properties" : {
              "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnet1"} ],
@@ -180,7 +178,7 @@
              "CidrBlock" : "10.0.3.0/24",
              "AvailabilityZone" : "us-east-1a"
         }
-      },
+        },
         "DBServerSubnet2" : {
           "Type" : "AWS::EC2::Subnet",
           "Properties" : {
@@ -189,7 +187,7 @@
              "CidrBlock" : "10.0.4.0/24",
              "AvailabilityZone" : "us-east-1b"
         }
-      },
+        },
       "DBServerSubnet3" : {
         "Type" : "AWS::EC2::Subnet",
         "Properties" : {
@@ -198,8 +196,7 @@
            "CidrBlock" : "10.0.5.0/24",
            "AvailabilityZone" : "us-east-1c"
       }
-    },
-
+        },
         "DBSubnetRouteTableAssociation1" : {
           "Type" : "AWS::EC2::SubnetRouteTableAssociation",
           "Properties" : {
@@ -238,7 +235,7 @@
                 "Ref": "DBServerSubnet3"
             }]
           }
-      },
+        },
 
           "NVNCloudSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
@@ -287,10 +284,13 @@
     "EC2Instance": {
         "Type": "AWS::EC2::Instance",
         "Properties": {
+         
+         "TagName": [ {"Key" : "applicationname", "Value" :"assignment0506"}],
           "ImageId": { "Ref": "EC2ImageId" },
           "InstanceType": { "Ref": "EC2InstanceType" },
            "SubnetId" : { "Ref": "PublicSubnet1"},
            "SecurityGroupIds" : [{ "Fn::GetAtt": [ "NVNCloudSecurityGroup", "GroupId" ] }],
+           "KeyName" : "csye6225-keypair",
           "BlockDeviceMappings": [
                 {
                     "DeviceName" : { "Ref": "EbsDeviceName"},
@@ -300,7 +300,58 @@
                         "DeleteOnTermination" : false
                     }
                 }
-            ]
+            ],
+            "UserData": {
+              "Fn::Base64": {
+                  "Fn::Join": [
+                      "\n",
+                      [
+                          "#!/bin/bash -xe ",
+                          "yum install ruby ntp wget java-1.8.0-openjdk-devel -y",
+                          "systemctl start ntpd",
+                          "systemctl enable ntpd",
+                          "groupadd tomcat",
+                          "useradd -M -s /bin/nologin -g tomcat -d /opt/tomcat tomcat",
+                          "cd /tmp",
+                          "wget http://apache.mirrors.pair.com/tomcat/tomcat-8/v8.5.34/bin/apache-tomcat-8.5.34.tar.gz",
+                          "mkdir /opt/tomcat",
+                          "tar xvf apache-tomcat-8*tar.gz -C /opt/tomcat --strip-components=1",
+                          "cd /opt/tomcat",
+                          "chgrp -R tomcat /opt/tomcat",
+                          "chmod -R g+r conf",
+                          "chmod g+x conf",
+                          "chown -R tomcat webapps/ work/ temp/ logs/",
+                          "cd /usr/lib/systemd/system",
+                          "touch tomcat.service",
+                          "echo '[Unit]' > tomcat.service",
+                          "echo 'Description=Apache Tomcat Web Application Container' >> tomcat.service",
+                          "echo 'After=syslog.target network.target' >> tomcat.service",
+                          "echo '[Service]' >> tomcat.service",
+                          "echo 'Type=forking' >> tomcat.service",
+                          "echo 'Environment=JAVA_HOME=/usr/lib/jvm/jre' >> tomcat.service",
+                          "echo 'Environment=CATALINA_PID=/opt/tomcat/temp/tomcat.pid' >> tomcat.service",
+                          "echo 'Environment=CATALINA_HOME=/opt/tomcat' >> tomcat.service",
+                          "echo 'Environment=CATALINA_BASE=/opt/tomcat' >> tomcat.service",
+                          "echo 'Environment=\"CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC\"' >> tomcat.service",
+                          "echo 'Environment=\"JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom\"' >> tomcat.service",
+                          "echo 'ExecStart=/opt/tomcat/bin/startup.sh' >> tomcat.service",
+                          "echo 'ExecStop=/bin/kill -15 $MAINPID' >> tomcat.service",
+                          "echo 'User=tomcat' >> tomcat.service",
+                          "echo 'Group=tomcat' >> tomcat.service",
+                          "echo 'UMask=0007' >> tomcat.service",
+                          "echo 'RestartSec=10' >> tomcat.service",
+                          "echo 'Restart=always' >> tomcat.service",
+                          "echo '[Install]' >> tomcat.service",
+                          "echo 'WantedBy=multi-user.target' >> tomcat.service",
+                          "systemctl daemon-reload",
+                          "#systemctl start cloudwatch.service",
+                          "#systemctl enable cloudwatch.service",
+                          "systemctl enable tomcat.service",
+                          "systemctl start tomcat.service"
+                      ]
+                  ]
+              }
+            }
           }
           },
         
@@ -352,5 +403,8 @@
         },
         "DeletionPolicy": "Snapshot"
       }
-      }
+       
+
+     }
+
 }
