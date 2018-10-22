@@ -22,47 +22,28 @@ fi
 until [ "$stackstatus" = "CREATE_COMPLETE" ]; do
   echo "Adding resources to the stack......"
 
-  vpcStatus=`aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType==\`AWS::EC2::VPC\` && ResourceStatus==\`CREATE_FAILED\`)][ResourceStatus]' --output text`
-  routeTableStatus=`aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType==\`AWS::EC2::RouteTable\` && ResourceStatus==\`CREATE_FAILED\`)][ResourceStatus]' --output text`
-  routeStatus=`aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType==\`AWS::EC2::Route\` && ResourceStatus==\`CREATE_FAILED\`)][ResourceStatus]' --output text`
-  internetGatewayStatus=`aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType==\`AWS::EC2::InternetGateway\` && ResourceStatus==\`CREATE_FAILED\`)][ResourceStatus]' --output text`
-  vpcGatewayAttachmentStatus=`aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType==\`AWS::EC2::VPCGatewayAttachment\` && ResourceStatus==\`CREATE_FAILED\`)][ResourceStatus]' --output text`
+  #ADD function to check resources
+  myresources(){
+    resourceStatus=`aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType=='$@' && ResourceStatus==\`CREATE_FAILED\`)][ResourceStatus]' --output text`
+    if [ "$resourceStatus" = "CREATE_FAILED" ]; then
+      createFlag=false
+      echo "$@ creation failed! "
+      aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType=='$@' && ResourceStatus==`CREATE_FAILED`)]'
+      echo "deleting stack..... "
+      bash ./csye6225-aws-cf-terminate-stack.sh $StackName
+      break
+    fi
+  }
 
-  if [ "$vpcStatus" = "CREATE_FAILED" ]; then
-    createFlag=false
-    echo "vpc creation failed! "
-    aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType==`AWS::EC2::VPC` && ResourceStatus==`CREATE_FAILED`)]'
-    echo "deleting stack..... "
-    bash ./csye6225-aws-networking-teardown.sh $StackName
-    break
-  fi
-
-  if [ "$routeTableStatus" = "CREATE_FAILED" ]; then
-    createFlag=false
-    echo "RouteTable creation failed! "
-    aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType==`AWS::EC2::VPC` && ResourceStatus==`CREATE_FAILED`)]'
-    echo "deleting stack..... "
-    bash ./csye6225-aws-networking-teardown.sh $StackName
-    break
-  fi
-
-  if [ "$routeStatus" = "CREATE_FAILED" ]; then
-    createFlag=false
-    echo "Route creation failed! "
-    aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType==`AWS::EC2::VPC` && ResourceStatus==`CREATE_FAILED`)]'
-    echo "deleting stack..... "
-    bash ./csye6225-aws-networking-teardown.sh $StackName
-    break
-  fi
-
-  if [ "$vpcGatewayAttachmentStatus" = "CREATE_FAILED" ]; then
-    createFlag=false
-    echo "VPCGatewayAttachment creation failed! "
-    aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType==`AWS::EC2::VPC` && ResourceStatus==`CREATE_FAILED`)]'
-    echo "deleting stack..... "
-    bash ./csye6225-aws-networking-teardown.sh $StackName
-    break
-  fi
+myresources '`AWS::EC2::VPC`'
+myresources '`AWS::EC2::RouteTable`'
+myresources '`AWS::EC2::Route`'
+myresources '`AWS::EC2::InternetGateway`'
+myresources '`AWS::EC2::VPCGatewayAttachment`'
+myresources '`AWS::EC2::Subnet`'
+myresources '`AWS::EC2::SubnetRouteTableAssociation`'
+myresources '`AWS::RDS::DBSubnetGroup`'
+myresources '`AWS::EC2::SecurityGroup`'
 
   stackstatus=`aws cloudformation describe-stacks --stack-name $StackName --query 'Stacks[*][StackStatus]' --output text`
   sleep 20

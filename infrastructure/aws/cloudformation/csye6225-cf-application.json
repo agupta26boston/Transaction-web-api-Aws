@@ -59,245 +59,92 @@
     "EbsVolumeSize" : {
       "Description": "Ebs VolumeSize",
       "Type": "Number"
+    },
+    "KeyPairName" : {
+      "Description": "Key Pair Name",
+      "Type": "String"
+    },
+    "AccessKeyId": {
+    "Description": "Access key",
+    "Type": "String"
+    },
+    "SecretAccessKey": {
+    "Description": "Secret key",
+    "Type": "String"
     }
     },
    "Resources" : {
-          "VPC":{
-            "Type":"AWS::EC2::VPC",
-            "Properties":{
-              "CidrBlock": "10.0.0.0/16",
-              "EnableDnsSupport":true,
-              "InstanceTenancy": "default",
-                  "Tags": [{"Key": "Name","Value": {"Fn::Join":["",[{"Ref":"AWS::StackName"},"-csye6225-vpc"]]}
-                      }]
-                  }
-                },
-          "InternetGateway" : {
-           "Type" : "AWS::EC2::InternetGateway",
-           "Properties" : {
-             "Tags" : [ {"Key" : "Name", "Value" : {"Fn::Join":["",[{"Ref":"AWS::StackName"},"-csye6225-InternetGateway"]]}
-             }]
-           }
-         },
 
-         "AttachGateway" : {
-            "Type" : "AWS::EC2::VPCGatewayAttachment",
-            "Properties" : {
-              "VpcId" : { "Ref" : "VPC" },
-              "InternetGatewayId" : { "Ref" : "InternetGateway" }
-            }
-         },
-
-         "RouteTable" : {
-           "Type" : "AWS::EC2::RouteTable",
-           "Properties" : {
-             "VpcId" : {"Ref" : "VPC"},
-             "Tags" : [ {"Key" : "Name", "Value" : {"Fn::Join":["",[{"Ref":"AWS::StackName"},"-csye6225-public-route-table"]]}
-             }]
-           }
-         },
-
-         "PrivateRouteTable" : {
-           "Type" : "AWS::EC2::RouteTable",
-           "Properties" : {
-             "VpcId" : {"Ref" : "VPC"},
-             "Tags" : [ {"Key" : "Name", "Value" : {"Fn::Join":["",[{"Ref":"AWS::StackName"},"-csye6225-private-route-table"]]}
-             }]
-           }
-         },
-
-         "Route" : {
-           "Type" : "AWS::EC2::Route",
-           "DependsOn" : "AttachGateway",
-           "Properties" : {
-             "RouteTableId" : { "Ref" : "RouteTable" },
-             "DestinationCidrBlock" : "0.0.0.0/0",
-             "GatewayId" : { "Ref" : "InternetGateway" }
-           }
-         },
-
-         "PublicSubnet1" : {
-           "Type" : "AWS::EC2::Subnet",
-           "Properties" : {
-              "Tags" : [ {"Key" : "Name", "Value" :"csye6225-PublicSubnet1"} ],
-              "VpcId" : { "Ref" : "VPC" },
-              "MapPublicIpOnLaunch" : true,
-              "CidrBlock" : "10.0.0.0/24",
-              "AvailabilityZone" : "us-east-1a"
-            }
-         },
-
-         "PublicSubnet2" : {
-          "Type" : "AWS::EC2::Subnet",
-          "Properties" : {
-             "Tags" : [ {"Key" : "Name", "Value" :"csye6225-PublicSubnet2"} ],
-             "VpcId" : { "Ref" : "VPC" },
-             "MapPublicIpOnLaunch" : true,
-             "CidrBlock" : "10.0.1.0/24",
-             "AvailabilityZone" : "us-east-1b"
-           }
-        },
-
-        "PublicSubnet3" : {
-          "Type" : "AWS::EC2::Subnet",
-          "Properties" : {
-             "Tags" : [ {"Key" : "Name", "Value" :"csye6225-PublicSubnet3"} ],
-             "VpcId" : { "Ref" : "VPC" },
-             "MapPublicIpOnLaunch" : true,
-             "CidrBlock" : "10.0.2.0/24",
-             "AvailabilityZone" : "us-east-1c"
-           }
-        },
-
-         "PublicSubnet1RouteTableAssociation1" : {
-           "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-           "Properties" : {
-              "SubnetId" : { "Ref" : "PublicSubnet1" },
-              "RouteTableId" : { "Ref" : "RouteTable" }
-           }
-         },
-         "PublicSubnet2RouteTableAssociation2" : {
-          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-          "Properties" : {
-             "SubnetId" : { "Ref" : "PublicSubnet2" },
-             "RouteTableId" : { "Ref" : "RouteTable" }
-          }
-        },
-        "PublicSubnet3RouteTableAssociation3" : {
-          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-          "Properties" : {
-             "SubnetId" : { "Ref" : "PublicSubnet3" },
-             "RouteTableId" : { "Ref" : "RouteTable" }
-          }
-        },
-        "DBServerSubnet1" : {
-          "Type" : "AWS::EC2::Subnet",
-          "Properties" : {
-             "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnet1"} ],
-             "VpcId" : { "Ref" : "VPC" },
-             "CidrBlock" : "10.0.3.0/24",
-             "AvailabilityZone" : "us-east-1a"
-        }
-        },
-        "DBServerSubnet2" : {
-          "Type" : "AWS::EC2::Subnet",
-          "Properties" : {
-             "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnet2"} ],
-             "VpcId" : { "Ref" : "VPC" },
-             "CidrBlock" : "10.0.4.0/24",
-             "AvailabilityZone" : "us-east-1b"
-        }
-        },
-      "DBServerSubnet3" : {
-        "Type" : "AWS::EC2::Subnet",
-        "Properties" : {
-           "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnet3"} ],
-           "VpcId" : { "Ref" : "VPC" },
-           "CidrBlock" : "10.0.5.0/24",
-           "AvailabilityZone" : "us-east-1c"
-      }
-        },
-        "DBSubnetRouteTableAssociation1" : {
-          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-          "Properties" : {
-             "SubnetId" : { "Ref": "DBServerSubnet1" },
-             "RouteTableId" : { "Ref" : "PrivateRouteTable" }
-          }
-        },
-        "DBSubnetRouteTableAssociation2" : {
-          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-          "Properties" : {
-             "SubnetId" : { "Ref": "DBServerSubnet2" },
-             "RouteTableId" : { "Ref" : "PrivateRouteTable" }
-          }
-        },
-
-        "DBSubnetRouteTableAssociation3" : {
-          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-          "Properties" : {
-             "SubnetId" : { "Ref": "DBServerSubnet3" },
-             "RouteTableId" : { "Ref" : "PrivateRouteTable" }
-          }
-        },
-
-        "NVNDBSubnetGroup": {
-          "Type": "AWS::RDS::DBSubnetGroup",
+    "NVNDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
           "Properties": {
-              "DBSubnetGroupDescription": "Subnet group for RDS",
-              "Tags" : [ {"Key" : "Name", "Value" :"csye6225-DBSubnetGroup"}],
-              "SubnetIds": [{
-                  "Ref": "DBServerSubnet1"
-              },
-              {
-                  "Ref": "DBServerSubnet2"
-              },
-              {
-                "Ref": "DBServerSubnet3"
-            }]
+      "AttributeDefinitions": [
+        {
+          "AttributeName": "Id",
+          "AttributeType": "S"
+        }
+      ],
+      "KeySchema": [
+        {
+          "AttributeName": "Id",
+          "KeyType": "HASH"
+        }
+      ],
+      "ProvisionedThroughput": {
+        "ReadCapacityUnits": "5",
+        "WriteCapacityUnits": "5"
+      },
+      "TableName": "csye6225"
           }
-        },
+    },
 
-          "NVNCloudSecurityGroup": {
-            "Type": "AWS::EC2::SecurityGroup",
-            "Properties": {
-              "Tags" : [ {"Key" : "Name", "Value" :"csye6225-webapp"}],
-              "GroupDescription": " security group for ec2 instances that will host web application",
-              "VpcId": { "Ref": "VPC"},
-              "SecurityGroupIngress" : [
-                {
-                  "IpProtocol" : "tcp",
-                  "FromPort" : "22",
-                  "ToPort" : "22",
-                  "CidrIp" : "0.0.0.0/0"
-                },
-                {
-                    "IpProtocol" : "tcp",
-                    "FromPort" : "80",
-                    "ToPort" : "80",
-                    "CidrIp" : "0.0.0.0/0"
-               },
-               {
-                   "IpProtocol" : "tcp",
-                   "FromPort" : "443",
-                   "ToPort" : "443",
-                   "CidrIp" : "0.0.0.0/0"
-              }]
-            }
-          },
+    "NVNCloudS3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": { "Ref": "bucketName" }
+      }
+    },
 
-          "NVNCloudRDSSecurityGroup": {
-             "Type": "AWS::EC2::SecurityGroup",
-             "Properties": {
-               "Tags" : [ {"Key" : "Name", "Value" :"csye6225-rds"}],
-               "GroupDescription": "Security group for RDS instances",
-               "VpcId": { "Ref": "VPC"},
-               "SecurityGroupIngress" : [
-                 {
-                   "IpProtocol" : "tcp",
-                   "FromPort" : "5432",
-                   "ToPort" : "5432",
-                   "SourceSecurityGroupId" : { "Ref" : "NVNCloudSecurityGroup"}
-                }]
-             }
-          },
+    "NVNCloudRDSDB": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine": { "Ref": "DBEngine"},
+        "AllocatedStorage": { "Ref": "DBAllocatedStorage"},
+        "EngineVersion": { "Ref": "DBEngineVersion"},
+        "DBInstanceClass": { "Ref": "DBInstanceClass"},
+        "MultiAZ": "false",
+        "DBInstanceIdentifier": { "Ref": "DBInstanceIdentifier"},
+        "MasterUsername": { "Ref": "DBUser" },
+        "MasterUserPassword": { "Ref": "DBPassword" },
+        "PubliclyAccessible": "false",
+        "DBName": { "Ref": "DBName" },
+        "VPCSecurityGroups": [{ "Fn::ImportValue" : "RDSGroupName" }],
+        "DBSubnetGroupName": { "Fn::ImportValue" : "DBSubnetGroupName" }
+      },
+      "DeletionPolicy": "Delete"
+    },
+
 
     "EC2Instance": {
-        "Type": "AWS::EC2::Instance",
-        "Properties": {
-         
-         "TagName": [ {"Key" : "applicationname", "Value" :"assignment0506"}],
-          "ImageId": { "Ref": "EC2ImageId" },
-          "InstanceType": { "Ref": "EC2InstanceType" },
-           "SubnetId" : { "Ref": "PublicSubnet1"},
-           "SecurityGroupIds" : [{ "Fn::GetAtt": [ "NVNCloudSecurityGroup", "GroupId" ] }],
-           "KeyName" : "csye6225-keypair",
-          "BlockDeviceMappings": [
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": { "Ref": "EC2ImageId" },
+        "KeyName" : { "Ref": "KeyPairName" },
+        "IamInstanceProfile" :{"Fn::ImportValue" : "EC2InstanceProfile"},
+        "InstanceType": { "Ref": "EC2InstanceType" },
+           "SubnetId" : { "Fn::ImportValue": "PublicSubnet1"},
+           "SecurityGroupIds" : [{"Fn::ImportValue" : {"Fn::Sub" : "EC2GroupName"}}],
+           "Tags":[{
+            "Key": "Name",
+            "Value": "CloudEC2"
+            }],
+           "BlockDeviceMappings": [
                 {
                     "DeviceName" : { "Ref": "EbsDeviceName"},
                     "Ebs" : {
                         "VolumeType" : { "Ref": "EbsVolumeType"},
                         "VolumeSize" :{ "Ref": "EbsVolumeSize"},
-                        "DeleteOnTermination" : false
+                        "DeleteOnTermination" : true
                     }
                 }
             ],
@@ -353,58 +200,19 @@
               }
             }
           }
-          },
-        
-      "myDynamoDBTable": {
-          "Type": "AWS::DynamoDB::Table",
-          "Properties": {
-      "AttributeDefinitions": [
-        {
-          "AttributeName": "Id",
-          "AttributeType": "S"
-        }
-      ],
-      "KeySchema": [
-        {
-          "AttributeName": "Id",
-          "KeyType": "HASH"
-        }
-      ],
-      "ProvisionedThroughput": {
-        "ReadCapacityUnits": "5",
-        "WriteCapacityUnits": "5"
-      },
-      "TableName": "csye6225"
-          }
-      },
-
-      "myS3Bucket": {
-        "Type": "AWS::S3::Bucket",
-        "Properties": {
-          "BucketName": { "Ref": "bucketName" }
-        }
-      },
-
-      "MyDB": {
-        "Type": "AWS::RDS::DBInstance",
-        "Properties": {
-          "Engine": { "Ref": "DBEngine"},
-          "AllocatedStorage": { "Ref": "DBAllocatedStorage"},
-          "EngineVersion": { "Ref": "DBEngineVersion"},
-          "DBInstanceClass": { "Ref": "DBInstanceClass"},
-          "MultiAZ": "false",
-          "DBInstanceIdentifier": { "Ref": "DBInstanceIdentifier"},
-          "MasterUsername": { "Ref": "DBUser" },
-          "MasterUserPassword": { "Ref": "DBPassword" },
-          "PubliclyAccessible": "false",
-          "DBName": { "Ref": "DBName" },
-          "VPCSecurityGroups": [{ "Ref" : "NVNCloudRDSSecurityGroup" }],
-          "DBSubnetGroupName": { "Ref" : "NVNDBSubnetGroup" }        
-        },
-        "DeletionPolicy": "Snapshot"
-      }
-       
-
-     }
+          }      
+  },
+  "Outputs": {
+    "WebAppS3BucketName": {
+      "Description": "Web Application S3 Bucket Name",
+      "Value": { "Ref": "NVNCloudS3Bucket"},
+      "Export" : { "Name" : "WebAppS3BucketName" }
+    },
+    "EC2Instance": {
+      "Description": "EC2 Instance",
+      "Value": { "Ref": "EC2Instance"},
+      "Export" : { "Name" : "EC2Instance" }
+    }
+  }
 
 }
