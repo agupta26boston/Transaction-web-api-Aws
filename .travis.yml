@@ -9,7 +9,7 @@ install: true
 script:
   - pwd
   - cd webapp
-  - ./mvnw install
+  - ./mvnw clean package
   - cd build/libs
   - ls -al
   - cd ../../..
