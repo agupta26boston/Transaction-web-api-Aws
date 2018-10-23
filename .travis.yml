@@ -8,8 +8,8 @@ install: true
 
 script:
   - pwd
-  - cd webapp
-  - ./mvn clean install
+  - cd webapp/user-assignment
+  - ./mvnw clean install
   - cd build/libs
   - ls -al
   - cd ../../..
