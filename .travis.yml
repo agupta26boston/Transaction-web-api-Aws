@@ -8,7 +8,7 @@ install: true
 
 script:
   - pwd
-  - cd webapp/user-assignment
+  - cd webapp/user-assignment/complete
   -  mvn clean install
   - cd build/libs
   - ls -al
