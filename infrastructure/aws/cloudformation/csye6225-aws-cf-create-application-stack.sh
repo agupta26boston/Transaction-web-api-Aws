@@ -5,6 +5,7 @@ createStackStatus=""
 createFlag=true
 DomainName=$2
 
+
 if [ -z "$StackName" ]; then
   echo "No stack name provided. Script exiting.."
   exit 1
@@ -13,7 +14,9 @@ if [ -z "$DomainName" ]; then
   echo "No domain name provided. Script exiting.."
   exit 1
 fi
-DomainName=$DomainName.TLD.csye6225.com
+
+Bucket=code-deploy.$DomainName.me
+
 echo "Starting $StackName network setup"
 
 echo "Starting to create the stack......"
@@ -30,12 +33,14 @@ createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
     ParameterKey=DBName,ParameterValue=csye6225 \
     ParameterKey=DBUser,ParameterValue=csye6225master \
     ParameterKey=DBPassword,ParameterValue=csye6225password \
-    ParameterKey=DBEngine,ParameterValue=postgres \
+    ParameterKey=DBEngine,ParameterValue=MySQL \
     ParameterKey=DBAllocatedStorage,ParameterValue=100 \
-    ParameterKey=DBEngineVersion,ParameterValue=10.5 \
+    ParameterKey=DBEngineVersion,ParameterValue=5.6.37 \
     ParameterKey=DBInstanceClass,ParameterValue=db.t2.medium \
     ParameterKey=DBInstanceIdentifier,ParameterValue=csye6225-fall2018 \
-    ParameterKey=bucketName,ParameterValue=$DomainName`
+   ParameterKey=KeyPairName,ParameterValue=csye6225-keypair \
+    ParameterKey=bucketName,ParameterValue=$DomainName` 
+   
 
 if [ -z "$createStackStatus" ]; then
   echo "Failed to create stack"
