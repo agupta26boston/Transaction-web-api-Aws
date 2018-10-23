@@ -63,7 +63,19 @@
     "KeyPairName" : {
       "Description": "Key Pair Name",
       "Type": "String"
-    }
+    },
+    "AccessKeyId": {
+			"Description": "Access key",
+			"Type": "String"
+  		},
+  		"SecretAccessKey": {
+  		"Description": "Secret key",
+  		"Type": "String"
+      },
+      "MySqlClientPass":{
+        "Description": "Root password for MySQL client on EC2 Instance",
+        "Type": "String"
+      }
   },
    "Resources" : {
 
@@ -228,6 +240,37 @@
                           },
                           "\"\"' >> /usr/lib/systemd/system/setenv.sh \n",
                           "chmod +x /usr/lib/systemd/system/setenv.sh \n",
+                          "\"\"' >> /usr/share/tomcat8/bin/setenv.sh \n",
+                                  "echo 'export JAVA_OPTS=\"$JAVA_OPTS -Daws.access-key-id=\"",
+                  								{
+                  									"Ref": "AccessKeyId"
+                  								},
+                  								"\"\"' >> /usr/share/tomcat8/bin/setenv.sh \n",
+                  								"echo 'export JAVA_OPTS=\"$JAVA_OPTS -Daws.access-secret-key=\"",
+                  								{
+                  									"Ref": "SecretAccessKey"
+                  								},
+                                  "\"\"' >> /usr/share/tomcat8/bin/setenv.sh \n",
+								                  "chmod +x /usr/share/tomcat8/bin/setenv.sh \n",
+                                  "sudo service tomcat8 restart \n",
+                                  {
+                                    "Fn::Join":[
+                                      "",[
+                                        "sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password ",
+                                        {"Ref": "MySqlClientPass"},
+                                        "'\" \n"
+                                      ]
+                                    ]
+                                  },
+                                  {
+                                    "Fn::Join":[
+                                      "",[
+                                        "sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password ",
+                                        {"Ref": "MySqlClientPass"},
+                                        "'\" \n"
+                                      ]
+                                    ]
+                                  },
                           "sudo service tomcat8 restart \n",
                           "sudo apt-get -y install mysql-server \n"
                       ]

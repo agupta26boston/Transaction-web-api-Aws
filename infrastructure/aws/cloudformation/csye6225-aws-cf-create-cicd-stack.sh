@@ -13,7 +13,7 @@ if [ -z "$DomainName" ]; then
   echo "No domain name provided. Script exiting.."
   exit 1
 fi
-Bucket=code-deploy.$DomainName.me
+Bucket=code-deploy.$DomainName
 
 echo "Starting $StackName network setup"
 
