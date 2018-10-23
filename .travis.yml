@@ -9,7 +9,7 @@ install: true
 script:
   - pwd
   - cd webapp
-  - ./gradlew war
+  - ./mvnw install
   - cd build/libs
   - ls -al
   - cd ../../..
@@ -43,7 +43,7 @@ deploy:
     access_key_id: $access_key_id
     secret_access_key: $secret_access_key
     on:
-      branch: master
+      branch: assignment0506
   - provider: codedeploy
     access_key_id: $access_key_id
     bucket: $s3_bucket
@@ -55,4 +55,4 @@ deploy:
     secret_access_key: $secret_access_key
     wait-until-deployed: true
     on:
-      branch: master
+      branch: assignment0506

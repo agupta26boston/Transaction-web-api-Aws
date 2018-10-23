@@ -63,16 +63,8 @@
     "KeyPairName" : {
       "Description": "Key Pair Name",
       "Type": "String"
-    },
-    "AccessKeyId": {
-    "Description": "Access key",
-    "Type": "String"
-    },
-    "SecretAccessKey": {
-    "Description": "Secret key",
-    "Type": "String"
     }
-    },
+  },
    "Resources" : {
 
     "NVNDynamoDBTable": {
@@ -155,6 +147,12 @@
                       [
                           "#!/bin/bash -xe ",
                           "yum install ruby ntp wget java-1.8.0-openjdk-devel -y",
+                          "sudo apt-get install python -y \n",
+                          "sudo apt-get update \n",
+                          "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
+                          "sudo chmod +x ./install \n",
+                          "sudo ./install auto \n",
+                          "sudo service codedeploy-agent start \n",
                           "systemctl start ntpd",
                           "systemctl enable ntpd",
                           "groupadd tomcat",
@@ -194,7 +192,44 @@
                           "#systemctl start cloudwatch.service",
                           "#systemctl enable cloudwatch.service",
                           "systemctl enable tomcat.service",
-                          "systemctl start tomcat.service"
+                          "systemctl start tomcat.service",
+                          "sudo echo \"export JAVA_OPTS=\\\"\\$JAVA_OPTS -Dspring.profiles.active=aws\\\"\" >> /usr/lib/systemd/system/setenv.sh \n",
+                          {
+                            "Fn::Join": [
+                              "", [
+                                "echo ' export JAVA_OPTS=\"$JAVA_OPTS -Dspring.datasource.url=\"jdbc:mysql://",
+                                {
+                                  "Fn::GetAtt": [
+                                    "NVNCloudRDSDB",
+                                    "Endpoint.Address"
+                                  ]
+                                },
+                                ":3306/",
+                                {
+                                  "Ref": "DBName"
+                                },
+                                "\"\"'>> /usr/lib/systemd/system/setenv.sh \n"
+                              ]
+                            ]
+                          },
+                          "echo 'export JAVA_OPTS=\"$JAVA_OPTS -Dspring.datasource.username=\"",
+                          {
+                            "Ref": "DBUser"
+                          },
+                          "\"\"' >> /usr/lib/systemd/system/setenv.sh \n",
+                          "echo 'export JAVA_OPTS=\"$JAVA_OPTS -Dspring.datasource.password=\"",
+                          {
+                            "Ref": "DBPassword"
+                          },
+                          "\"\"' >> //usr/lib/systemd/system/setenv.sh \n",
+                          "echo 'export JAVA_OPTS=\"$JAVA_OPTS -Damazon.s3.default-bucket=\"",
+                          {
+                            "Ref": "bucketName"
+                          },
+                          "\"\"' >> /usr/lib/systemd/system/setenv.sh \n",
+                          "chmod +x /usr/lib/systemd/system/setenv.sh \n",
+                          "sudo service tomcat8 restart \n",
+                          "sudo apt-get -y install mysql-server \n"
                       ]
                   ]
               }

@@ -176,6 +176,7 @@
           {
             "Ref": "DBServerSubnet3"
         }]
+          }
       },
 
       "NVNCloudSecurityGroup": {
@@ -227,8 +228,8 @@
             }]
          }
       }
+    
     },
-
     "Outputs": {
       "GroupName": {
         "Description": "ID of NVNCloudRDSSecurityGroup",
@@ -250,7 +251,5 @@
         "Value": { "Ref": "PublicSubnet1"},
         "Export" : { "Name":"PublicSubnet1" }
       }
-    }
-    }
-		  
+    } 
 }   
