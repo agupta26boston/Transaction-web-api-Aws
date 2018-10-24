@@ -12,7 +12,7 @@ script:
   - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
   - cd build/libs
   - ls -al
-  - cd ../../../..
+  - cd ../../..
   - pwd
   - ls -al
 
