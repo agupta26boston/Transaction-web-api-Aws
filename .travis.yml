@@ -10,7 +10,7 @@ script:
   - pwd
   - cd webapp/user-assignment/complete
   - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-  - cd build/libs
+  - cd target
   - ls -al
   - cd ../../..
   - pwd
@@ -22,7 +22,7 @@ after_success:
   - mkdir codedeploy_artifact
   - cp infrastructure/aws/codedeploy/*.sh .
   - cp infrastructure/aws/codedeploy/*.yml .
-  - zip -r csye6225-web-app-$TRAVIS_JOB_NUMBER.zip webapp/build/libs/ROOT.war *.sh *.yml
+  - zip -r csye6225-web-app-$TRAVIS_JOB_NUMBER.zip webapp/user-assignment/complete/target/ROOT.war *.sh *.yml
   - ls -al
   - mv csye6225-web-app-$TRAVIS_JOB_NUMBER.zip codedeploy_artifact/
   - ls -al
