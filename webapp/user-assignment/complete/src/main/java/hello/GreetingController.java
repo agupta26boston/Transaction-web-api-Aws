@@ -182,8 +182,6 @@ public class GreetingController {
                 Transaction got = transactionRepository.findTransactionByTransactionId(transactionId);
                  if(attachementRepository.findAttachmentByAttachmentId(attachmentId) != null) {
 
-
-
                      Attachment existingAttachment = attachementRepository.findAttachmentByAttachmentId(attachmentId);
                      String existingpath=existingAttachment.getUrl();
                      File oldfile = new File(existingpath);

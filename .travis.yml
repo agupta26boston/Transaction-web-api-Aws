@@ -10,6 +10,7 @@ script:
   - pwd
   - cd webapp/user-assignment/complete
   -  mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
   - cd target
   - ls -al
   - cd ../../../..
