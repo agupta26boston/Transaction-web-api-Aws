@@ -1,5 +1,5 @@
 version: 0.0
-os: linux
+os: linux 
 
 files:             
   - source: ./webapp/user-assignment/complete/target/ROOT-2.0.5.RELEASE.war
@@ -14,3 +14,7 @@ hooks:
    - location: ./applicationStart.sh
      timeout: 180
      runas: centos
+  # ValidateService:
+  #  - location: ./validateService.sh
+  #    timeout: 180
+  #    runas: centos

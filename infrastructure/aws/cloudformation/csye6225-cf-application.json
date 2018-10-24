@@ -64,18 +64,10 @@
       "Description": "Key Pair Name",
       "Type": "String"
     },
-    "AccessKeyId": {
-			"Description": "Access key",
-			"Type": "String"
-  		},
-  		"SecretAccessKey": {
-  		"Description": "Secret key",
-  		"Type": "String"
-      },
-      "MySqlClientPass":{
-        "Description": "Root password for MySQL client on EC2 Instance",
-        "Type": "String"
-      }
+    "MySqlClientPass":{
+    "Description": "Root password for MySQL client on EC2 Instance",
+    "Type": "String"
+  }
   },
    "Resources" : {
 
@@ -159,12 +151,10 @@
                       [
                           "#!/bin/bash -xe ",
                           "yum install ruby ntp wget java-1.8.0-openjdk-devel -y",
-                          "sudo apt-get install python -y \n",
-                          "sudo apt-get update \n",
-                          "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
-                          "sudo chmod +x ./install \n",
-                          "sudo ./install auto \n",
-                          "sudo service codedeploy-agent start \n",
+                          "wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
+                          "chmod +x ./install \n",
+                          "./install auto \n",
+                          "service codedeploy-agent start \n",
                           "systemctl start ntpd",
                           "systemctl enable ntpd",
                           "groupadd tomcat",
@@ -237,21 +227,7 @@
                           "echo 'export JAVA_OPTS=\"$JAVA_OPTS -Damazon.s3.default-bucket=\"",
                           {
                             "Ref": "bucketName"
-                          },
-                          "\"\"' >> /usr/lib/systemd/system/setenv.sh \n",
-                          "chmod +x /usr/lib/systemd/system/setenv.sh \n",
-                          "\"\"' >> /usr/share/tomcat8/bin/setenv.sh \n",
-                                  "echo 'export JAVA_OPTS=\"$JAVA_OPTS -Daws.access-key-id=\"",
-                  								{
-                  									"Ref": "AccessKeyId"
-                  								},
-                  								"\"\"' >> /usr/share/tomcat8/bin/setenv.sh \n",
-                  								"echo 'export JAVA_OPTS=\"$JAVA_OPTS -Daws.access-secret-key=\"",
-                  								{
-                  									"Ref": "SecretAccessKey"
-                  								},
-                                  "\"\"' >> /usr/share/tomcat8/bin/setenv.sh \n",
-								                  "chmod +x /usr/share/tomcat8/bin/setenv.sh \n",
+                          },                          
                                   "sudo service tomcat8 restart \n",
                                   {
                                     "Fn::Join":[
