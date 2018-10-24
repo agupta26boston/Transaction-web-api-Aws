@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 
 files:             
-  - source: ./webapp/build/libs/ROOT.war
+  - source: ./webapp/user-assignment/complete/target/ROOT-2.0.5.RELEASE.war
     destination: /opt/tomcat/webapps
 
 hooks:
@@ -14,7 +14,3 @@ hooks:
    - location: ./applicationStart.sh
      timeout: 180
      runas: centos
-  # ValidateService:
-  #  - location: ./validateService.sh
-  #    timeout: 180
-  #    runas: centos

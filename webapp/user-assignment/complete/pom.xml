@@ -4,8 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.springframework</groupId>
+
+    <artifactId>ROOT</artifactId>   
+
     <artifactId>gs-rest-service</artifactId>
-    <version>0.1.0</version>
+
+
     <packaging>war</packaging>
 
     <parent>
@@ -19,6 +23,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -74,6 +86,11 @@
             <artifactId>aws-java-sdk</artifactId>
             <version>1.11.416</version>
         </dependency>
+
+        <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 
         <dependency>
             <groupId>org.mindrot</groupId>

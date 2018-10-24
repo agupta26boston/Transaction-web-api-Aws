@@ -10,7 +10,7 @@ if [ -z "$DomainName" ]; then
   exit 1
 fi
 
-DomainName=code-deploy.$DomainName.me
+DomainName=$DomainName.csye6225.com
 
 
 echo "Cleaning s3 bucket $DomainName"
