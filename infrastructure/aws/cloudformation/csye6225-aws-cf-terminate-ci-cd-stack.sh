@@ -9,9 +9,7 @@ if [ -z "$DomainName" ]; then
   echo "No domain name provided. Script exiting.."
   exit 1
 fi
-
-DomainName=$DomainName.csye6225.com
-
+DomainName=code-deploy.$DomainName
 
 echo "Cleaning s3 bucket $DomainName"
 aws s3 rm s3://$DomainName --recursive
