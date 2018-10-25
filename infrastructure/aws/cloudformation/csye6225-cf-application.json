@@ -195,7 +195,7 @@
                           "#systemctl enable cloudwatch.service",
                           "systemctl enable tomcat.service",
                           "systemctl start tomcat.service",
-                          "sudo echo \"export JAVA_OPTS=\\\"\\$JAVA_OPTS -Dspring.profiles.active=aws\\\"\" >> /usr/lib/systemd/system/setenv.sh \n",
+                          "#echo \"export JAVA_OPTS=\\\"\\$JAVA_OPTS -Dspring.profiles.active=aws\\\"\" >> /usr/lib/systemd/system/setenv.sh \n",
                           {
                             "Fn::Join": [
                               "", [
@@ -228,11 +228,11 @@
                           {
                             "Ref": "bucketName"
                           },                          
-                                  "sudo service tomcat8 restart \n",
+                                  "service tomcat8 restart \n",
                                   {
                                     "Fn::Join":[
                                       "",[
-                                        "sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password ",
+                                        "debconf-set-selections <<< 'mysql-server mysql-server/root_password password ",
                                         {"Ref": "MySqlClientPass"},
                                         "'\" \n"
                                       ]
@@ -241,14 +241,14 @@
                                   {
                                     "Fn::Join":[
                                       "",[
-                                        "sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password ",
+                                        "debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password ",
                                         {"Ref": "MySqlClientPass"},
                                         "'\" \n"
                                       ]
                                     ]
                                   },
-                          "sudo service tomcat8 restart \n",
-                          "sudo apt-get -y install mysql-server \n"
+                          "service tomcat8 restart \n",
+                          "yum install mysql-server \n"
                       ]
                   ]
               }
