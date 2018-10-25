@@ -107,7 +107,10 @@
         "Bucket" : {"Ref": "NVNCloudS3Bucket"},
         "PolicyDocument": {
           "Statement": [{
+
             "Action":["*"],
+
+
             "Effect":"Allow",
             "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "bucketName" } , "/*" ]]},
             "Principal":"*",
@@ -218,6 +221,7 @@
                           "#systemctl enable cloudwatch.service",
                           "systemctl enable tomcat.service",
                           "systemctl start tomcat.service",
+
                           "sudo touch bin/setenv.sh",
                           "sudo chmod 777 bin/setenv.sh",
                           "sudo echo 'export USERNAME=csye6225master' >> bin/setenv.sh",
@@ -225,6 +229,7 @@
                           "sudo echo 'export DIALECT=org.hibernate.dialect.MySQLDialect5' >> bin/setenv.sh",
                           "sudo echo 'export DRIVER=com.mysql.jdbc.Driver' >> bin/setenv.sh",
                           "sudo echo 'export SPRING_PROFILES_ACTIVE=aws' >> bin/setenv.sh",
+
                           {
                             "Fn::Join": [
                               "",
@@ -250,8 +255,9 @@
                               ]
                             ]
                           },
+
                           "systemctl start tomcat.service"
-                          
+
                       ]
                   ]
               }
