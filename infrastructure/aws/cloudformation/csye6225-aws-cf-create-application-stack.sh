@@ -43,8 +43,6 @@ createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
     ParameterKey=DBInstanceIdentifier,ParameterValue=csye6225-fall2018 \
     ParameterKey=KeyPairName,ParameterValue=csyekeypair \
     ParameterKey=bucketName,ParameterValue=$DomainName \
-    ParameterKey=AccessKeyId,ParameterValue=$AccessKeyId \
-    ParameterKey=SecretAccessKey,ParameterValue=$SecretAccessKey \
     ParameterKey=MySqlClientPass,ParameterValue=$MySqlClientPass`
   
    
