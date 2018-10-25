@@ -45,7 +45,6 @@ public class GreetingController {
     private final AtomicLong counter = new AtomicLong();
     private User loggedInUser;
 
-
     @Autowired
     private GreetingService greetingService;
     @Autowired
@@ -62,10 +61,15 @@ public class GreetingController {
 
     @Autowired
     Environment environment;
+    @RequestMapping("/")
+    public String heloo(HttpServletRequest request, HttpServletResponse response) {
+        return " heloooo";
+
+    }
 
 
 
-    @RequestMapping("/time")
+        @RequestMapping("/time")
     public String greeting(HttpServletRequest request, HttpServletResponse response) {
 
 
@@ -78,6 +82,7 @@ public class GreetingController {
             return "You are not logged in";
 
         }
+        // check if the user is in the system
 
 
         return "" + LocalDateTime.now() + " " + response.getStatus();
@@ -163,26 +168,24 @@ public class GreetingController {
     }
     @RequestMapping(value = "/transactions/{id}/attachments/{attachmentId}", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity<String> updateAttachment(@PathVariable("id") String transactionId, @PathVariable("attachmentId") String attachmentId, @RequestPart(value = "file") MultipartFile file) throws IOException {
-        for (final String profileName : environment.getActiveProfiles()) {
-            if ("aws".equals(profileName) && loggedInUser != null) {
-                try {
-                    String keyname = transactionId + "/" + attachmentId;
-                    System.out.println(keyname);
-                    s3Services.uploadFile(keyname, file);
-                } catch (Exception e) {
-                    return new ResponseEntity<String>("Cannot update file-> Keyname = ", HttpStatus.OK);
-                }
-                return new ResponseEntity<String>("Cannot update File -> Keyname = ", HttpStatus.OK);
-            }
-        }
-
-
-
 
         if (loggedInUser != null) {
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
                 Transaction got = transactionRepository.findTransactionByTransactionId(transactionId);
                  if(attachementRepository.findAttachmentByAttachmentId(attachmentId) != null) {
+
+                     for (final String profileName : environment.getActiveProfiles()) {
+                         if ("aws".equals(profileName)) {
+                             try {
+                                 String keyname = transactionId + "/" + attachmentId;
+                                 System.out.println(keyname);
+                                 s3Services.uploadFile(keyname, file);
+                             } catch (Exception e) {
+                                 return new ResponseEntity<String>("Cannot update file-> Keyname = ", HttpStatus.OK);
+                             }
+                             return new ResponseEntity<String>("Cannot update File -> Keyname = ", HttpStatus.OK);
+                         }
+                     }
 
                      Attachment existingAttachment = attachementRepository.findAttachmentByAttachmentId(attachmentId);
                      String existingpath=existingAttachment.getUrl();
@@ -249,19 +252,6 @@ public class GreetingController {
     @RequestMapping(value = "/transactions/{id}/attachments/{attachmentid}", method = RequestMethod.DELETE, produces = "application/json")
     public ResponseEntity<String> deleteAttachment(@PathVariable("id") String transactionId, @PathVariable("attachmentid") String attachmentId, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        for (final String profileName : environment.getActiveProfiles()) {
-            if ("aws".equals(profileName) && loggedInUser != null) {
-                try {
-                    String keyname = transactionId + "/" + attachmentId;
-                    System.out.println(keyname);
-                    s3Services.deleteFile(keyname);
-                } catch (Exception e) {
-                    return new ResponseEntity<String>("Cannot Delete File -> Keyname = ", HttpStatus.OK);
-                }
-                return new ResponseEntity<String>("Cannot Delete File -> Keyname = ", HttpStatus.OK);
-            }
-        }
-
 
         if (loggedInUser == null) {
             return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
@@ -271,6 +261,21 @@ public class GreetingController {
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
 
                  if (attachementRepository.findAttachmentByAttachmentId(attachmentId)!= null) {
+
+                     for (final String profileName : environment.getActiveProfiles()) {
+                         if ("aws".equals(profileName) && loggedInUser != null) {
+                             try {
+                                 String keyname = transactionId + "/" + attachmentId;
+                                 System.out.println(keyname);
+                                 s3Services.deleteFile(keyname);
+                             } catch (Exception e) {
+                                 return new ResponseEntity<String>("Cannot Delete File -> Keyname = ", HttpStatus.OK);
+                             }
+                             return new ResponseEntity<String>("Cannot Delete File -> Keyname = ", HttpStatus.OK);
+                         }
+                     }
+
+
                      Attachment existingAttachment = attachementRepository.findAttachmentByAttachmentId(attachmentId);
                      String existingpath=existingAttachment.getUrl();
                      File oldfile = new File(existingpath);
@@ -397,18 +402,6 @@ public class GreetingController {
         UUID uuid = UUID.randomUUID();
         String attachmentId = uuid.toString();
 
-        for (final String profileName : environment.getActiveProfiles()) {
-            if("aws".equals(profileName)&& loggedInUser != null) {
-
-                String keyName = TransactionId + "/" + attachmentId;
-                s3Services.uploadFile(keyName, file);
-
-                return new ResponseEntity<String>(keyName, HttpStatus.CREATED);
-            }
-
-        }
-
-
         if (loggedInUser != null) {
             byte[] bytes = new byte[0];
             try {
@@ -416,6 +409,17 @@ public class GreetingController {
                 Path path = Paths.get("\\META-INF.resources\\images\\" + file.getOriginalFilename());
                 //write the file to the correct place
                 Files.write(path, bytes);
+
+                for (final String profileName : environment.getActiveProfiles()) {
+                    if("aws".equals(profileName)&& loggedInUser != null) {
+
+                        String keyName = TransactionId + "/" + attachmentId;
+                        s3Services.uploadFile(keyName, file);
+
+                        return new ResponseEntity<String>(keyName, HttpStatus.CREATED);
+                    }
+
+                }
 
                 //find the trasactiom
                 Transaction transaction = transactionRepository.findTransactionByTransactionId(TransactionId);

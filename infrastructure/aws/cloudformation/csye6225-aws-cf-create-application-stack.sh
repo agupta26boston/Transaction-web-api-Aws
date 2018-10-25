@@ -4,6 +4,9 @@ stackstatus=""
 createStackStatus=""
 createFlag=true
 DomainName=$2
+AccessKeyId=$3
+SecretAccessKey=$4
+MySqlClientPass=$5
 
 
 if [ -z "$StackName" ]; then
@@ -15,7 +18,7 @@ if [ -z "$DomainName" ]; then
   exit 1
 fi
 
-Bucket=code-deploy.$DomainName.me
+Bucket=$DomainName.csye6225.com
 
 echo "Starting $StackName network setup"
 
@@ -38,8 +41,10 @@ createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
     ParameterKey=DBEngineVersion,ParameterValue=5.6.37 \
     ParameterKey=DBInstanceClass,ParameterValue=db.t2.medium \
     ParameterKey=DBInstanceIdentifier,ParameterValue=csye6225-fall2018 \
-   ParameterKey=KeyPairName,ParameterValue=csye6225-keypair \
-    ParameterKey=bucketName,ParameterValue=$DomainName` 
+    ParameterKey=KeyPairName,ParameterValue=csyekeypair \
+    ParameterKey=bucketName,ParameterValue=$DomainName \
+    ParameterKey=MySqlClientPass,ParameterValue=$MySqlClientPass`
+  
    
 
 if [ -z "$createStackStatus" ]; then
@@ -58,12 +63,11 @@ until [ "$stackstatus" = "CREATE_COMPLETE" ]; do
       echo "$@ creation failed! "
       aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType=='$@' && ResourceStatus==`CREATE_FAILED`)]'
       echo "deleting stack..... "
-      bash ./csye6225-aws-cf-terminate-application-stack.sh $StackName
+      bash ./csye6225-aws-cf-terminate-application-stack.sh $StackName $DomainName
       break
     fi
   }
 
-myresources '`AWS::EC2::SecurityGroup`'
 myresources '`AWS::EC2::Instance`'
 myresources '`AWS::DynamoDB::Table`'
 myresources '`AWS::S3::Bucket`'

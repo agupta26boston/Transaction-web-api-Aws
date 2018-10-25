@@ -1,8 +1,8 @@
 version: 0.0
-os: linux
+os: linux 
 
 files:             
-  - source: ./webapp/build/libs/ROOT.war
+  - source: ./webapp/user-assignment/complete/target/ROOT.war
     destination: /opt/tomcat/webapps
 
 hooks:
