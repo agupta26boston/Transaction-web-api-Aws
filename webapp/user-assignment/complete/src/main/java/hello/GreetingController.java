@@ -45,6 +45,7 @@ public class GreetingController {
     private final AtomicLong counter = new AtomicLong();
     private User loggedInUser;
 
+
     @Autowired
     private GreetingService greetingService;
     @Autowired
@@ -62,6 +63,8 @@ public class GreetingController {
     @Autowired
     Environment environment;
 
+
+
     @RequestMapping("/time")
     public String greeting(HttpServletRequest request, HttpServletResponse response) {
 
@@ -71,11 +74,10 @@ public class GreetingController {
         System.out.println("" + check);
 
         if (check == null) {
-            //  response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
             return "You are not logged in";
 
         }
-        // check if the user is in the system
 
 
         return "" + LocalDateTime.now() + " " + response.getStatus();

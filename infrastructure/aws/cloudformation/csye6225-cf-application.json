@@ -193,7 +193,7 @@
                           "#systemctl enable cloudwatch.service",
                           "systemctl enable tomcat.service",
                           "systemctl start tomcat.service",
-                          "sudo echo \"export JAVA_OPTS=\\\"\\$JAVA_OPTS -Dspring.profiles.active=aws\\\"\" >> /usr/lib/systemd/system/setenv.sh \n",
+                         
                           {
                             "Fn::Join": [
                               "", [
