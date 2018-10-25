@@ -251,11 +251,13 @@
                           {
                             "Ref": "DBPassword"
                           },
-                          "\"\"' >> //usr/lib/systemd/system/setenv.sh \n",
+                          "\"\"' >> /usr/lib/systemd/system/setenv.sh \n",
                           "echo 'export JAVA_OPTS=\"$JAVA_OPTS -Damazon.s3.default-bucket=\"",
                           {
                             "Ref": "bucketName"
-                          },                          
+                          },   
+                          "\"\"' >> /usr/lib/systemd/system/setenv.sh \n",
+								                  "chmod +x /usr/lib/systemd/system/setenv.sh \n",                       
                                   "service tomcat8 restart \n"
                       ]
                   ]
