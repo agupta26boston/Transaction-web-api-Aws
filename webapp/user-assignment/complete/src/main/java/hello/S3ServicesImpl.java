@@ -2,7 +2,9 @@ package hello;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.slf4j.Logger;
@@ -54,6 +56,27 @@ public class S3ServicesImpl implements S3Services{
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void deleteFile(String keyName) {
+        try {
+            s3client.deleteObject(new DeleteObjectRequest(bucketName, keyName));
+        } catch(AmazonServiceException ase) {
+            logger.info("Caught an AmazonServiceException from PUT requests, rejected reasons:");
+            logger.info("Error Message:    " + ase.getMessage());
+            logger.info("HTTP Status Code: " + ase.getStatusCode());
+            logger.info("AWS Error Code:   " + ase.getErrorCode());
+            logger.info("Error Type:       " + ase.getErrorType());
+            logger.info("Request ID:       " + ase.getRequestId());
+            throw ase;
+        } catch (SdkClientException sce) {
+            logger.info("Caught an SdkClientException: ");
+            logger.info("Error Message: " + sce.getMessage());
+            throw sce;
+        }
+    }
+
+
     public File convertFromMultipart(MultipartFile file) throws Exception
     {
         File convFile = new File(file.getOriginalFilename());
@@ -63,6 +86,7 @@ public class S3ServicesImpl implements S3Services{
         fos.close();
         return convFile;
     }
+
 
     }
 
