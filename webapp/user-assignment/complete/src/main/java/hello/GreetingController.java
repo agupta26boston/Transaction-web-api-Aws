@@ -61,8 +61,15 @@ public class GreetingController {
 
     @Autowired
     Environment environment;
+    @RequestMapping("/")
+    public String heloo(HttpServletRequest request, HttpServletResponse response) {
+        return " heloooo";
 
-    @RequestMapping("/time")
+    }
+
+
+
+        @RequestMapping("/time")
     public String greeting(HttpServletRequest request, HttpServletResponse response) {
 
 
