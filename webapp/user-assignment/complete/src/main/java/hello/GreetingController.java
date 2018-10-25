@@ -25,6 +25,7 @@ import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,20 +56,20 @@ public class GreetingController {
     @Autowired
     private AttachementRepository attachementRepository;
 
+    @Autowired(required = false)
+    S3Services s3Services;
 
-//    @RequestMapping("/")
-//    public void check(HttpServletResponse response){
-//
-//        System.out.println(" "+response.getStatus());
-//        if (response.getStatus()!=200)
-//        {
-//
-//            System.out.println("I am not logged in" );
-//
-//        }
-//    }
+    @Autowired
+    Environment environment;
+    @RequestMapping("/")
+    public String heloo(HttpServletRequest request, HttpServletResponse response) {
+        return " heloooo";
 
-    @RequestMapping("/time")
+    }
+
+
+
+        @RequestMapping("/time")
     public String greeting(HttpServletRequest request, HttpServletResponse response) {
 
 
@@ -167,6 +168,22 @@ public class GreetingController {
     }
     @RequestMapping(value = "/transactions/{id}/attachments/{attachmentId}", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity<String> updateAttachment(@PathVariable("id") String transactionId, @PathVariable("attachmentId") String attachmentId, @RequestPart(value = "file") MultipartFile file) throws IOException {
+        for (final String profileName : environment.getActiveProfiles()) {
+            if ("aws".equals(profileName) && loggedInUser != null) {
+                try {
+                    String keyname = transactionId + "/" + attachmentId;
+                    System.out.println(keyname);
+                    s3Services.uploadFile(keyname, file);
+                } catch (Exception e) {
+                    return new ResponseEntity<String>("Cannot update file-> Keyname = ", HttpStatus.OK);
+                }
+                return new ResponseEntity<String>("Cannot update File -> Keyname = ", HttpStatus.OK);
+            }
+        }
+
+
+
+
         if (loggedInUser != null) {
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
                 Transaction got = transactionRepository.findTransactionByTransactionId(transactionId);
@@ -236,10 +253,26 @@ public class GreetingController {
     }
     @RequestMapping(value = "/transactions/{id}/attachments/{attachmentid}", method = RequestMethod.DELETE, produces = "application/json")
     public ResponseEntity<String> deleteAttachment(@PathVariable("id") String transactionId, @PathVariable("attachmentid") String attachmentId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        for (final String profileName : environment.getActiveProfiles()) {
+            if ("aws".equals(profileName) && loggedInUser != null) {
+                try {
+                    String keyname = transactionId + "/" + attachmentId;
+                    System.out.println(keyname);
+                    s3Services.deleteFile(keyname);
+                } catch (Exception e) {
+                    return new ResponseEntity<String>("Cannot Delete File -> Keyname = ", HttpStatus.OK);
+                }
+                return new ResponseEntity<String>("Cannot Delete File -> Keyname = ", HttpStatus.OK);
+            }
+        }
+
+
         if (loggedInUser == null) {
             return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 
-        } else if (loggedInUser != null) {
+
+    } else if (loggedInUser != null) {
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
 
                  if (attachementRepository.findAttachmentByAttachmentId(attachmentId)!= null) {
@@ -364,7 +397,22 @@ public class GreetingController {
 
 
     @PostMapping(value = "/transactions/{id}/attachments")
-    public ResponseEntity<String> postAttachment(@PathVariable("id") String TransactionId, @RequestPart(value = "file") MultipartFile file) {
+    public ResponseEntity<String> postAttachment(@PathVariable("id") String TransactionId,@RequestPart(value = "file") MultipartFile file) {
+        //create a attachment id
+        UUID uuid = UUID.randomUUID();
+        String attachmentId = uuid.toString();
+
+        for (final String profileName : environment.getActiveProfiles()) {
+            if("aws".equals(profileName)&& loggedInUser != null) {
+
+                String keyName = TransactionId + "/" + attachmentId;
+                s3Services.uploadFile(keyName, file);
+
+                return new ResponseEntity<String>(keyName, HttpStatus.CREATED);
+            }
+
+        }
+
 
         if (loggedInUser != null) {
             byte[] bytes = new byte[0];
@@ -374,16 +422,11 @@ public class GreetingController {
                 //write the file to the correct place
                 Files.write(path, bytes);
 
-
-//        // setting the uuui for the transaction
-//        if(loggedInUser!=nu
-                UUID uuid = UUID.randomUUID();
-                String stringUuid = uuid.toString();
                 //find the trasactiom
                 Transaction transaction = transactionRepository.findTransactionByTransactionId(TransactionId);
                 if (transaction != null) {
                     Attachment attachment = new Attachment();
-                    attachment.setAttachmentId(stringUuid);
+                    attachment.setAttachmentId(attachmentId);
                     attachment.setUrl(path.toString());
                     attachment.setTransaction(transaction);
 
@@ -413,14 +456,5 @@ public class GreetingController {
     }
 
 
-    @Autowired
-    S3Services s3Services;
-
-    @Profile("aws")
-    @PostMapping("/api/file/upload")
-    public String uploadMultipartFile(@RequestParam("keyname") String keyName, @RequestParam("uploadfile") MultipartFile file) {
-        s3Services.uploadFile(keyName, file);
-        return "Upload Successfully. -> KeyName = " + keyName;
-    }
 }
 

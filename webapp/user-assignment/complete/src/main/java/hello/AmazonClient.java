@@ -18,11 +18,6 @@ import javax.annotation.PostConstruct;
 @Configuration
 @Profile("aws")
 public class AmazonClient {
-//    @Value("${amazonProperties.accessKey}")
-//    private String awsId;
-//
-//    @Value("${amazonProperties.secretKey}")
-//    private String awsKey;
 
     @Value("${amazonProperties.region}")
     private String region;

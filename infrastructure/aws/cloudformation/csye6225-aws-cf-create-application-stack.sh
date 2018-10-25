@@ -4,6 +4,10 @@ stackstatus=""
 createStackStatus=""
 createFlag=true
 DomainName=$2
+AccessKeyId=$3
+SecretAccessKey=$4
+MySqlClientPass=$5
+
 
 if [ -z "$StackName" ]; then
   echo "No stack name provided. Script exiting.."
@@ -13,7 +17,9 @@ if [ -z "$DomainName" ]; then
   echo "No domain name provided. Script exiting.."
   exit 1
 fi
-DomainName=$DomainName.csye6225.com
+
+Bucket=$DomainName.csye6225.com
+
 echo "Starting $StackName network setup"
 
 echo "Starting to create the stack......"
@@ -30,12 +36,16 @@ createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
     ParameterKey=DBName,ParameterValue=csye6225 \
     ParameterKey=DBUser,ParameterValue=csye6225master \
     ParameterKey=DBPassword,ParameterValue=csye6225password \
-    ParameterKey=DBEngine,ParameterValue=postgres \
+    ParameterKey=DBEngine,ParameterValue=MySQL \
     ParameterKey=DBAllocatedStorage,ParameterValue=100 \
-    ParameterKey=DBEngineVersion,ParameterValue=10.5 \
+    ParameterKey=DBEngineVersion,ParameterValue=5.6.37 \
     ParameterKey=DBInstanceClass,ParameterValue=db.t2.medium \
     ParameterKey=DBInstanceIdentifier,ParameterValue=csye6225-fall2018 \
-    ParameterKey=bucketName,ParameterValue=$DomainName`
+    ParameterKey=KeyPairName,ParameterValue=csyekeypair \
+    ParameterKey=bucketName,ParameterValue=$DomainName \
+    ParameterKey=MySqlClientPass,ParameterValue=$MySqlClientPass`
+  
+   
 
 if [ -z "$createStackStatus" ]; then
   echo "Failed to create stack"
@@ -53,19 +63,11 @@ until [ "$stackstatus" = "CREATE_COMPLETE" ]; do
       echo "$@ creation failed! "
       aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType=='$@' && ResourceStatus==`CREATE_FAILED`)]'
       echo "deleting stack..... "
-      bash ./csye6225-aws-cf-terminate-application-stack.sh $StackName
+      bash ./csye6225-aws-cf-terminate-application-stack.sh $StackName $DomainName
       break
     fi
   }
 
-myresources '`AWS::EC2::VPC`'
-myresources '`AWS::EC2::RouteTable`'
-myresources '`AWS::EC2::Route`'
-myresources '`AWS::EC2::InternetGateway`'
-myresources '`AWS::EC2::VPCGatewayAttachment`'
-myresources '`AWS::EC2::Subnet`'
-myresources '`AWS::EC2::SubnetRouteTableAssociation`'
-myresources '`AWS::EC2::SecurityGroup`'
 myresources '`AWS::EC2::Instance`'
 myresources '`AWS::DynamoDB::Table`'
 myresources '`AWS::S3::Bucket`'
