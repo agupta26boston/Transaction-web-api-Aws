@@ -85,7 +85,6 @@ public class GreetingController {
         // check if the user is in the system'
 
             System.out.println("" + System.getenv("SPRING_PROFILES_ACTIVE"));
-
             System.out.println( System.getProperty("spring.datasource.url"));
 
 
