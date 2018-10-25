@@ -1,0 +1,341 @@
+{
+  "AWSTemplateFormatVersion":"2010-09-09",
+   "Description":"csye6225 cloudformation ci-cd stack",
+   "Parameters":{
+      "BucketName":{
+         "Description":"NVN Code Deploy S3 Bucket Name",
+         "Type":"String"
+      }
+   },
+
+  "Resources" : {
+    "NVNCodeDeployS3Bucket":{
+      "Type":"AWS::S3::Bucket",
+      "Properties":{
+         "BucketName":{
+            "Ref":"BucketName"
+         }
+      }
+   },
+
+   "TravisUploadToS3Policy":{
+    "Type":"AWS::IAM::Policy",
+    "Properties":{
+       "PolicyName":"Travis-Upload-To-S3",
+       "PolicyDocument":{
+          "Version": "2012-10-17",
+          "Statement":[
+             {
+                "Effect":"Allow",
+                "Resource":{"Fn::Join":["",["arn:aws:s3:::",{"Ref":"BucketName"},"/*"]]},
+                "Action":["s3:PutObject"]
+             }
+          ]
+       },
+       "Users":["travis"]
+    }
+ },
+
+ "EC2ServiceRole":{
+  "Type":"AWS::IAM::Role",
+  "Properties":{
+     "AssumeRolePolicyDocument":{
+        "Statement":[
+           {
+              "Effect":"Allow",
+              "Principal":{
+                 "Service":[
+                    "ec2.amazonaws.com"
+                 ]
+              },
+              "Action":[
+                 "sts:AssumeRole"
+              ]
+           }
+        ]
+     },
+     "Path":"/",
+     "RoleName" : "CodeDeployEC2ServiceRole"
+  }
+},
+
+  "CodeDeployEC2S3" : {
+    "Type" : "AWS::IAM::ManagedPolicy",
+    "Properties" : {
+    "ManagedPolicyName" : "CodeDeploy-EC2-S3",
+    "Roles":[
+    {
+        "Ref":"EC2ServiceRole"
+    }
+    ],
+    "PolicyDocument" :   {
+    "Version":"2012-10-17", 
+    "Statement" : [{
+      "Effect" : "Allow",           
+      "Action" :  [
+                  "s3:Get*",
+                  "s3:List*"
+                ],
+      "Resource" : [
+      {
+          "Fn::Join":[
+            "",
+            [
+                "arn:aws:s3:::",
+                {
+                  "Ref":"BucketName"
+                },
+                "/*"
+            ]
+          ]
+      }
+    ]
+    }]
+    }
+  }
+ },
+
+ "EC2InstanceProfile":{
+  "Type":"AWS::IAM::InstanceProfile",
+  "Properties":{
+     "Path":"/",
+     "Roles":[
+        {
+           "Ref":"EC2ServiceRole"
+        }
+     ]
+  }
+},
+ 
+  "CodeDeployServiceRole": {
+    "Type":"AWS::IAM::Role",
+    "Properties":{
+      "ManagedPolicyArns":[
+          "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
+      ],
+      "AssumeRolePolicyDocument":{
+          "Statement":[
+            {
+                "Effect":"Allow",
+                "Principal":{
+                  "Service":[
+                      "codedeploy.us-east-1.amazonaws.com"
+                  ]
+                },
+                "Action":[
+                  "sts:AssumeRole"
+                ]
+            }
+          ]
+      },
+      "Path":"/",
+      "RoleName" : "CodeDeployServiceRole"
+    }
+},
+     
+     
+
+"TravisCodeDeployPolicy":{
+  "Type":"AWS::IAM::ManagedPolicy",
+  "Properties":{
+     "ManagedPolicyName":"Travis-Code-Deploy",
+     "PolicyDocument":{
+        "Version": "2012-10-17",
+        "Statement":[
+           {
+              "Effect":"Allow",
+              "Action":[
+                 "codedeploy:RegisterApplicationRevision",
+                 "codedeploy:GetApplicationRevision"
+              ],
+              "Resource":[
+                {
+                   "Fn::Join":[
+                      "",
+                      [
+                         "arn:aws:codedeploy:",
+                         {
+                            "Ref":"AWS::Region"
+                         },
+                         ":",
+                         {
+                           "Ref":"AWS::AccountId"
+                         },
+                         ":application:",
+                         {
+                           "Ref":"CodeDeployApplication"
+                         }
+                      ]
+                   ]
+                }
+              ]
+           },
+           {
+              "Effect":"Allow",
+              "Action":[
+                 "codedeploy:CreateDeployment",
+                 "codedeploy:GetDeployment"
+              ],
+              "Resource":[
+                {
+                  "Fn::Join":[
+                     "",
+                     [
+                        "arn:aws:codedeploy:",
+                        {
+                           "Ref":"AWS::Region"
+                        },
+                        ":",
+                        {
+                          "Ref":"AWS::AccountId"
+                        },
+                        ":deploymentgroup:",
+                        {
+                          "Ref": "CodeDeployApplication"
+                        },
+                        "/*"
+                     ]
+                  ]
+                },
+                {
+                 "Fn::Join":[
+                    "",
+                    [
+                       "arn:aws:codedeploy:",
+                       {
+                          "Ref":"AWS::Region"
+                       },
+                       ":",
+                       {
+                         "Ref":"AWS::AccountId"
+                       },
+                       ":deploymentconfig:CodeDeployDefault.OneAtATime"
+                    ]
+                 ]
+              },
+              {
+                 "Fn::Join":[
+                    "",
+                    [
+                       "arn:aws:codedeploy:",
+                       {
+                          "Ref":"AWS::Region"
+                       },
+                       ":",
+                       {
+                         "Ref":"AWS::AccountId"
+                       },
+                       ":deploymentconfig:CodeDeployDefault.HalfAtATime"
+                    ]
+                 ]
+              },
+              {
+                 "Fn::Join":[
+                    "",
+                    [
+                       "arn:aws:codedeploy:",
+                       {
+                          "Ref":"AWS::Region"
+                       },
+                       ":",
+                       {
+                         "Ref":"AWS::AccountId"
+                       },
+                       ":deploymentconfig:CodeDeployDefault.AllAtOnce"
+                    ]
+                 ]
+              }
+             ]
+           },
+           {
+              "Effect":"Allow",
+              "Action":[
+                 "codedeploy:GetDeploymentConfig"
+              ],
+              "Resource":[
+                {
+                   "Fn::Join":[
+                      "",
+                      [
+                         "arn:aws:codedeploy:",
+                         {
+                            "Ref":"AWS::Region"
+                         },
+                         ":",
+                         {
+                           "Ref":"AWS::AccountId"
+                         },
+                         ":deploymentconfig:CodeDeployDefault.OneAtATime"
+                      ]
+                   ]
+                },
+                {
+                   "Fn::Join":[
+                      "",
+                      [
+                         "arn:aws:codedeploy:",
+                         {
+                            "Ref":"AWS::Region"
+                         },
+                         ":",
+                         {
+                           "Ref":"AWS::AccountId"
+                         },
+                         ":deploymentconfig:CodeDeployDefault.HalfAtATime"
+                      ]
+                   ]
+                },
+                {
+                   "Fn::Join":[
+                      "",
+                      [
+                         "arn:aws:codedeploy:",
+                         {
+                            "Ref":"AWS::Region"
+                         },
+                         ":",
+                         {
+                           "Ref":"AWS::AccountId"
+                         },
+                         ":deploymentconfig:CodeDeployDefault.AllAtOnce"
+                      ]
+                   ]
+                }
+              ]
+           }
+        ]
+     },
+     "Users":["travis"]
+  }
+},
+
+"CodeDeployApplication": {
+  "Type": "AWS::CodeDeploy::Application",
+  "Properties": {
+    "ComputePlatform": "Server",
+    "ApplicationName": "codedeploy-app"
+  }
+},
+
+"CodeDeploymentGroup":{
+  "Type" : "AWS::CodeDeploy::DeploymentGroup",
+  "Properties": {
+    "DeploymentGroupName": "CloudDeployGroup",
+    "ApplicationName": {"Ref" :"CodeDeployApplication"},
+    "DeploymentConfigName" : "CodeDeployDefault.OneAtATime",
+    "Ec2TagFilters": [{"Key":"Name","Type":"KEY_AND_VALUE","Value":"CloudEC2"}],
+    "ServiceRoleArn": { "Fn::GetAtt" : [ "CodeDeployServiceRole", "Arn" ] }
+    }
+  }
+  },
+
+  "Outputs": {
+    "EC2InstanceProfile": {
+      "Description": "EC2 Instance Profile",
+      "Value": { "Ref": "EC2InstanceProfile"},
+      "Export" : { "Name" : "EC2InstanceProfile" }
+    }
+  }
+
+}
+
