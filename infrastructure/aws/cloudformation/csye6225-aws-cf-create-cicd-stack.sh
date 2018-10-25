@@ -4,10 +4,6 @@ stackstatus=""
 createStackStatus=""
 createFlag=true
 DomainName=$2
-AccessKeyId=$3
-SecretAccessKey=$4
-MySqlClientPass=$5
-
 
 if [ -z "$StackName" ]; then
   echo "No stack name provided. Script exiting.."
@@ -17,35 +13,18 @@ if [ -z "$DomainName" ]; then
   echo "No domain name provided. Script exiting.."
   exit 1
 fi
-
-Bucket=$DomainName.csye6225.com
+Bucket=code-deploy.$DomainName
 
 echo "Starting $StackName network setup"
 
 echo "Starting to create the stack......"
 
-echo "$DomainName is my s3 bucket....."
+echo "$Bucket is my code-deploy s3 bucket....."
 
 createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
-	--template-body file://csye6225-cf-application.json \
-	--parameters ParameterKey=EC2ImageId,ParameterValue=ami-9887c6e7 \
-    ParameterKey=EC2InstanceType,ParameterValue=t2.micro \
-    ParameterKey=EbsDeviceName,ParameterValue=/dev/sda1 \
-    ParameterKey=EbsVolumeType,ParameterValue=gp2 \
-    ParameterKey=EbsVolumeSize,ParameterValue=20\
-    ParameterKey=DBName,ParameterValue=csye6225 \
-    ParameterKey=DBUser,ParameterValue=csye6225master \
-    ParameterKey=DBPassword,ParameterValue=csye6225password \
-    ParameterKey=DBEngine,ParameterValue=MySQL \
-    ParameterKey=DBAllocatedStorage,ParameterValue=100 \
-    ParameterKey=DBEngineVersion,ParameterValue=5.6.37 \
-    ParameterKey=DBInstanceClass,ParameterValue=db.t2.medium \
-    ParameterKey=DBInstanceIdentifier,ParameterValue=csye6225-fall2018 \
-    ParameterKey=KeyPairName,ParameterValue=csyekeypair \
-    ParameterKey=bucketName,ParameterValue=$Bucket \
-    ParameterKey=MySqlClientPass,ParameterValue=$MySqlClientPass`
-  
-   
+  --template-body file://csye6225-cf-cicd.json \
+  --parameters ParameterKey=BucketName,ParameterValue=$Bucket \
+  --capabilities CAPABILITY_NAMED_IAM`
 
 if [ -z "$createStackStatus" ]; then
   echo "Failed to create stack"
@@ -68,10 +47,14 @@ until [ "$stackstatus" = "CREATE_COMPLETE" ]; do
     fi
   }
 
-myresources '`AWS::EC2::Instance`'
-myresources '`AWS::DynamoDB::Table`'
-myresources '`AWS::S3::Bucket`'
-myresources '`AWS::RDS::DBInstance`'
+  myresources '`AWS::S3::Bucket`'
+  myresources '`AWS::IAM::Policy`'
+  myresources '`AWS::IAM::ManagedPolicy`'
+  myresources '`AWS::IAM::InstanceProfile`'
+  myresources '`AWS::IAM::Role`'
+  myresources '`AWS::CodeDeploy::Application`'
+  myresources '`AWS::CodeDeploy::DeploymentConfig`'
+  myresources '`AWS::CodeDeploy::DeploymentGroup`'
 
   stackstatus=`aws cloudformation describe-stacks --stack-name $StackName --query 'Stacks[*][StackStatus]' --output text`
   sleep 20
