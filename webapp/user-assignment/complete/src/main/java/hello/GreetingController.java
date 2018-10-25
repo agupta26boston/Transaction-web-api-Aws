@@ -87,7 +87,6 @@ public class GreetingController {
             System.out.println("" + System.getenv("SPRING_PROFILES_ACTIVE"));
             System.out.println( System.getProperty("spring.datasource.url"));
 
-            System.out.print(" " + ${SPRING_PROFILES_ACTIVE});
 
 
         return "" + LocalDateTime.now() + " " + response.getStatus();
