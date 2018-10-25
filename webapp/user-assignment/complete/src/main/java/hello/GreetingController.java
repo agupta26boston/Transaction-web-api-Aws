@@ -402,13 +402,12 @@ public class GreetingController {
         UUID uuid = UUID.randomUUID();
         String attachmentId = uuid.toString();
 
+
+
         if (loggedInUser != null) {
             byte[] bytes = new byte[0];
             try {
-                bytes = file.getBytes();
-                Path path = Paths.get("\\META-INF.resources\\images\\" + file.getOriginalFilename());
-                //write the file to the correct place
-                Files.write(path, bytes);
+
 
                 for (final String profileName : environment.getActiveProfiles()) {
                     if("aws".equals(profileName)&& loggedInUser != null) {
@@ -420,6 +419,11 @@ public class GreetingController {
                     }
 
                 }
+                bytes = file.getBytes();
+                Path path = Paths.get("\\META-INF.resources\\images\\" + file.getOriginalFilename());
+                //write the file to the correct place
+                Files.write(path, bytes);
+
 
                 //find the trasactiom
                 Transaction transaction = transactionRepository.findTransactionByTransactionId(TransactionId);
