@@ -101,6 +101,34 @@
       }
     },
 
+    "NVNCloudS3BucketPolicy":{
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "Bucket" : {"Ref": "NVNCloudS3Bucket"},
+        "PolicyDocument": {
+          "Statement": [{
+            "Action":[
+              "s3:PutObject",
+              "s3:PutObjectAcl",
+              "s3:GetObject",
+              "s3:GetObjectAcl",
+              "s3:DeleteObject"
+           ],
+            "Effect":"Allow",
+            "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "bucketName" } , "/*" ]]},
+            "Principal":"*",
+            "Condition":{
+              "StringLike":{
+                "aws:Referer":[
+                  "*"
+                ]
+              }
+            }
+            }]
+        }
+      }
+    },
+
     "NVNCloudRDSDB": {
       "Type": "AWS::RDS::DBInstance",
       "Properties": {
