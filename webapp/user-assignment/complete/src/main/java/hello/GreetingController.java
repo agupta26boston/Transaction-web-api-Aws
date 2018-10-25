@@ -82,7 +82,11 @@ public class GreetingController {
             return "You are not logged in";
 
         }
-        // check if the user is in the system
+        // check if the user is in the system'
+
+            System.out.println("" + System.getProperty("SPRING_PROFILES_ACTIVE"));
+
+            System.out.println( System.getProperty("spring.datasource.url"));
 
 
         return "" + LocalDateTime.now() + " " + response.getStatus();
