@@ -108,9 +108,10 @@
         "Bucket" : {"Ref": "NVNCloudS3Bucket"},
         "PolicyDocument": {
           "Statement": [{
-            "Action":["*"],
+            "Action":["s3:*"],
             "Effect":"Allow",
-            "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "bucketName" } , "/*" ]]},
+            "Resource": [{ "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "bucketName" } , "/*" ]]},
+                         { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "bucketName" }]]}],
             "Principal":"*",
             "Condition":{
               "StringLike":{
