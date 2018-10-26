@@ -1,3 +1,4 @@
+
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
@@ -101,6 +102,29 @@
       }
     },
 
+    "NVNCloudS3BucketPolicy":{
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "Bucket" : {"Ref": "NVNCloudS3Bucket"},
+        "PolicyDocument": {
+          "Statement": [{
+            "Action":["*"],
+            "Effect":"Allow",
+            "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "bucketName" } , "/*" ]]},
+            "Principal":"*",
+            "Condition":{
+              "StringLike":{
+                "aws:Referer":[
+                  "*"
+                ]
+              }
+            }
+            }]
+        }
+      }
+    },
+
+
     "NVNCloudRDSDB": {
       "Type": "AWS::RDS::DBInstance",
       "Properties": {
@@ -195,40 +219,40 @@
                           "#systemctl enable cloudwatch.service",
                           "systemctl enable tomcat.service",
                           "systemctl start tomcat.service",
-                          "echo \"export JAVA_OPTS=\\\"\\$JAVA_OPTS -DSPRING_PROFILES_ACTIVE=aws\\\"\" >> /usr/lib/systemd/system/setenv.sh \n",
+                          "sudo touch bin/setenv.sh",
+                          "sudo chmod 777 bin/setenv.sh",
+                          "sudo echo 'export USERNAME=csye6225master' >> bin/setenv.sh",
+                          "sudo echo 'export PASSWORD=csye6225password' >> bin/setenv.sh",
+                          "sudo echo 'export DIALECT=org.hibernate.dialect.MySQLDialect5' >> bin/setenv.sh",
+                          "sudo echo 'export DRIVER=com.mysql.jdbc.Driver' >> bin/setenv.sh",
+                          "sudo echo 'export SPRING_PROFILES_ACTIVE=aws' >> bin/setenv.sh",
                           {
                             "Fn::Join": [
-                              "", [
-                                "echo ' export JAVA_OPTS=\"$JAVA_OPTS -Dspring.datasource.url=\"jdbc:mysql://",
+                              "",
+                              [
+                                "sudo echo 'export URL=jdbc:mysql://",
                                 {
                                   "Fn::GetAtt": [
                                     "NVNCloudRDSDB",
                                     "Endpoint.Address"
                                   ]
                                 },
-                                ":3306/",
-                                {
-                                  "Ref": "DBName"
-                                },
-                                "\"\"'>> /usr/lib/systemd/system/setenv.sh \n"
+                                ":3306/csye6225' >> bin/setenv.sh"
                               ]
                             ]
                           },
-                          "echo 'export JAVA_OPTS=\"$JAVA_OPTS -Dspring.datasource.username=\"",
                           {
-                            "Ref": "DBUser"
+                            "Fn::Join": [
+                              "",
+                              [
+                                "sudo echo 'export BUCKETNAME=",
+                                {"Ref" : "bucketName"},
+                                "' >> bin/setenv.sh"
+                              ]
+                            ]
                           },
-                          "\"\"' >> /usr/lib/systemd/system/setenv.sh \n",
-                          "echo 'export JAVA_OPTS=\"$JAVA_OPTS -Dspring.datasource.password=\"",
-                          {
-                            "Ref": "DBPassword"
-                          },
-                          "\"\"' >> //usr/lib/systemd/system/setenv.sh \n",
-                          "echo 'export JAVA_OPTS=\"$JAVA_OPTS -Damazon.s3.default-bucket=\"",
-                          {
-                            "Ref": "bucketName"
-                          },                          
-                                  "service tomcat8 restart \n"
+                          "systemctl start tomcat.service"
+                          
                       ]
                   ]
               }
