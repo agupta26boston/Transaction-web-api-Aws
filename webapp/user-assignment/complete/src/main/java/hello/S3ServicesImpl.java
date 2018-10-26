@@ -28,7 +28,7 @@ public class S3ServicesImpl implements S3Services{
     @Autowired
     private AmazonS3 s3client;
 
-    @Value("${amazonProperties.bucketName}")
+    @Value("${BUCKET}")
     private String bucketName;
     @Override
     public void uploadFile(String keyName, MultipartFile file) {
