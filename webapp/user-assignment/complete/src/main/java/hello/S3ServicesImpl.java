@@ -29,13 +29,17 @@ public class S3ServicesImpl implements S3Services{
     private AmazonS3 s3client;
 
     //@Value("${amazonProperties.bucketName}")
-    private String bucketName = "code-deploy.csye6225-fall2018-bengret.me";
+    private String bucketName ="csye6225-fall2018-bengret.me.csye6225.com";
     @Override
     public void uploadFile(String keyName, MultipartFile file) {
         try {
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(file.getSize());
-            s3client.putObject(new PutObjectRequest(bucketName, keyName,convertFromMultipart(file)));
+            File convFile = new File( file.getOriginalFilename());
+            convFile.createNewFile();
+            FileOutputStream fos = new FileOutputStream(convFile);
+            fos.write(file.getBytes());
+            fos.close();
+            //multipart.transferTo(convFile);
+            s3client.putObject(new PutObjectRequest(bucketName, keyName, convFile));
             //saving the meta data onto the database
 
         } catch(IOException ioe) {
