@@ -29,7 +29,7 @@ public class S3ServicesImpl implements S3Services{
     private AmazonS3 s3client;
 
     //@Value("${amazonProperties.bucketName}")
-    private String bucketName = "csye6225-fall2018-bengret.me.csye6225.com";
+    private String bucketName = "code-deploy.csye6225-fall2018-bengret.me";
     @Override
     public void uploadFile(String keyName, MultipartFile file) {
         try {
