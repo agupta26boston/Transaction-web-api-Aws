@@ -28,8 +28,8 @@ public class S3ServicesImpl implements S3Services{
     @Autowired
     private AmazonS3 s3client;
 
-    @Value("${amazonProperties.bucketName}")
-    private String bucketName;
+    //@Value("${amazonProperties.bucketName}")
+    private String bucketName = "code-deploy.csye6225-fall2018-bengret.me";
     @Override
     public void uploadFile(String keyName, MultipartFile file) {
         try {
