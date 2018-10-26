@@ -39,7 +39,7 @@ public class S3ServicesImpl implements S3Services{
             //saving the meta data onto the database
 
         } catch(IOException ioe) {
-            logger.error("IOException: " + ioe.getMessage());
+            logger.error("IOException: " + ioe.getMessage() ," " +ioe);
         } catch (AmazonServiceException ase) {
             logger.info("Caught an AmazonServiceException from PUT requests, rejected reasons:");
             logger.info("Error Message:    " + ase.getMessage());
