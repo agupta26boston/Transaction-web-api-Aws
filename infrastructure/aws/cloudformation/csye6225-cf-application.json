@@ -218,6 +218,7 @@
                           "#systemctl enable cloudwatch.service",
                           "systemctl enable tomcat.service",
                           "systemctl start tomcat.service",
+                          "cd /opt/tomcat",
                           "sudo touch bin/setenv.sh",
                           "sudo chmod 777 bin/setenv.sh",
                           "sudo echo 'export USERNAME=csye6225master' >> bin/setenv.sh",
