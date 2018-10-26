@@ -409,7 +409,7 @@ public class GreetingController {
 
 
         if (loggedInUser != null) {
-            byte[] bytes = new byte[0];
+
             try {
 
 
@@ -423,6 +423,7 @@ public class GreetingController {
                     }
 
                 }
+                byte[] bytes = new byte[0];
                 bytes = file.getBytes();
                 Path path = Paths.get("\\META-INF.resources\\images\\" + file.getOriginalFilename());
                 //write the file to the correct place
