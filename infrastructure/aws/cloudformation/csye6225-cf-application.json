@@ -108,8 +108,7 @@
         "PolicyDocument": {
           "Statement": [{
 
-            "Action":["*"],
-
+            "Action":["s3:*"],
 
             "Effect":"Allow",
             "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "bucketName" } , "/*" ]]},
@@ -221,6 +220,8 @@
                           "#systemctl enable cloudwatch.service",
                           "systemctl enable tomcat.service",
                           "systemctl start tomcat.service",
+
+                          "cd /opt/tomcat",
 
                           "sudo touch bin/setenv.sh",
                           "sudo chmod 777 bin/setenv.sh",

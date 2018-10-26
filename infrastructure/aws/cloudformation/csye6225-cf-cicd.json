@@ -19,9 +19,9 @@
    },
 
    "TravisUploadToS3Policy":{
-    "Type":"AWS::IAM::Policy",
+    "Type":"AWS::IAM::ManagedPolicy",
     "Properties":{
-       "PolicyName":"Travis-Upload-To-S3",
+       "ManagedPolicyName":"Travis-Upload-To-S3",
        "PolicyDocument":{
           "Version": "2012-10-17",
           "Statement":[
