@@ -28,7 +28,10 @@
              {
                 "Effect":"Allow",
                 "Resource":{"Fn::Join":["",["arn:aws:s3:::",{"Ref":"BucketName"},"/*"]]},
-                "Action":["s3:PutObject"]
+                "Action":["s3:Get*",
+                  "s3:List*",
+                  "s3:Put*",
+                  "s3:Delete*"]
              }
           ]
        },
