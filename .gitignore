@@ -114,3 +114,5 @@ webapp/user-assignment/complete/.idea/workspace.xml
 
 /webapp/user-assignment/complete/src/main/resources/application-aws.properties
 
+/webapp/user-assignment/complete/src/main/resources/application-dev.properties
+
