@@ -32,27 +32,26 @@ public class S3ServicesImpl implements S3Services{
     @Value("${amazonProperties.bucketName}")
     private String bucketName;
     @Override
-    public void uploadFile(String idAttachments, MultipartFile file) {
+    public void uploadFile(String keyName, MultipartFile file) {
         try {
             String fileName = StringUtils.cleanPath(file.getOriginalFilename());
             String[] split = fileName.split("\\.");
             String extension = split[split.length - 1];
-            File newFile = new File("/tmp", idAttachments + "." + extension);
-            if(!newFile.exists())
-                newFile.createNewFile();
-            FileOutputStream fos = new FileOutputStream(newFile);
-            fos.write(file.getBytes());
-            fos.close();
-            PutObjectRequest objectRequest = new PutObjectRequest(this.bucketName, idAttachments + "." + extension, newFile);
-            this.s3client.putObject(objectRequest);
-            newFile.delete();
+            File newFile = new File("/tmp", keyName + "." + extension);
+            PutObjectRequest request = new PutObjectRequest(bucketName, keyName, new File(String.valueOf(newFile)));
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType("plain/text");
+            metadata.addUserMetadata("x-amz-meta-title", "someTitle");
+            request.setMetadata(metadata);
+            s3client.putObject(request);
+
             //ObjectMetadata metadata = new ObjectMetadata();
             //metadata.setContentLength(file.getSize());
             //s3client.putObject(new PutObjectRequest(bucketName, keyName,convertFromMultipart(file)));
             //saving the meta data onto the database
 
-        } catch(IOException ioe) {
-            logger.error("IOException: " + ioe.getMessage() ," " +ioe);
+         //catch(IOException ioe) {
+            //logger.error("IOException: " + ioe.getMessage() ," " +ioe);
         } catch (AmazonServiceException ase) {
             logger.info("Caught an AmazonServiceException from PUT requests, rejected reasons:");
             logger.info("Error Message:    " + ase.getMessage());
