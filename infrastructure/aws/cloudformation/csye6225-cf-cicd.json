@@ -14,7 +14,8 @@
       "Properties":{
          "BucketName":{
             "Ref":"BucketName"
-         }
+         },
+         "AccessControl": "Private"
       }
    },
 
@@ -36,7 +37,7 @@
     }
  },
 
- "EC2ServiceRole":{
+ "CodeDeployEC2ServiceRole":{
   "Type":"AWS::IAM::Role",
   "Properties":{
      "AssumeRolePolicyDocument":{
@@ -59,13 +60,38 @@
   }
 },
 
+  "AccessAttachmentToS3Bucket": {
+    "Type" : "AWS::IAM::ManagedPolicy",
+    "Properties":{
+    "Description" : "Policy for uploading attachments into S3",
+    "ManagedPolicyName" : "Access-Attachment-To-S3-Bucket",
+    "PolicyDocument":{
+    "Version": "2012-10-17",
+    "Statement": [
+    {
+    "Action": [
+    "s3:PutObject",
+    "s3:DeleteObject",
+    "s3:GetObject"
+    ],
+    "Effect": "Allow",
+    "Resource": [{
+    "Fn::Sub": "arn:aws:s3:::csye6225-fall2018-kanadep.me.csye6225.com/*"
+    }]
+    }
+    ]
+    },
+    "Roles" : [{"Ref": "CodeDeployEC2ServiceRole"}]
+    }
+    },
+
   "CodeDeployEC2S3" : {
     "Type" : "AWS::IAM::ManagedPolicy",
     "Properties" : {
     "ManagedPolicyName" : "CodeDeploy-EC2-S3",
     "Roles":[
     {
-        "Ref":"EC2ServiceRole"
+        "Ref":"CodeDeployEC2ServiceRole"
     }
     ],
     "PolicyDocument" :   {
@@ -101,7 +127,7 @@
      "Path":"/",
      "Roles":[
         {
-           "Ref":"EC2ServiceRole"
+           "Ref":"CodeDeployEC2ServiceRole"
         }
      ]
   }
