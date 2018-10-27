@@ -7,6 +7,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
+import com.amazonaws.services.s3.transfer.Upload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,21 +37,13 @@ public class S3ServicesImpl implements S3Services{
     @Override
     public void uploadFile(String keyName, MultipartFile file) {
         try {
-            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-            String[] split = fileName.split("\\.");
-            String extension = split[split.length - 1];
-            File newFile = new File("/tmp", keyName + "." + extension);
-            if(!newFile.exists())
-                newFile.createNewFile();
-            FileOutputStream fos = new FileOutputStream(newFile);
-            fos.write(file.getBytes());
-            fos.close();
-            PutObjectRequest request = new PutObjectRequest(bucketName, keyName + "." + extension, newFile);
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType("plain/text");
-            metadata.addUserMetadata("x-amz-meta-title", "someTitle");
-            request.setMetadata(metadata);
-            s3client.putObject(request);
+            TransferManager tm = TransferManagerBuilder.standard().withS3Client(s3client).build();
+            Upload upload = tm.upload(bucketName, keyName, convertFromMultipart(file));
+            System.out.println("Object upload started");
+
+            // Optionally, wait for the upload to finish before continuing.
+            upload.waitForCompletion();
+            System.out.println("Object upload complete");
 
             //ObjectMetadata metadata = new ObjectMetadata();
             //metadata.setContentLength(file.getSize());
