@@ -19,6 +19,9 @@ import javax.annotation.PostConstruct;
 @Profile("aws")
 public class AmazonClient {
 
+
+
+
     @Value("${amazonProperties.region}")
     private String region;
 

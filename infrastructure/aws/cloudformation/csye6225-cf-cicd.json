@@ -49,7 +49,7 @@
                  ]
               },
               "Action":[
-                 "sts:AssumeRole"
+                "sts:AssumeRole"
               ]
            }
         ]
