@@ -96,9 +96,9 @@ public class S3ServicesImpl implements S3Services{
             convFile.getParentFile().mkdir();
         if(!convFile.exists())*/
             convFile.createTempFile(file.getOriginalFilename(),null);
-        FileOutputStream fos = new FileOutputStream(convFile);
-        fos.write(file.getBytes());
-        fos.close();
+        //FileOutputStream fos = new FileOutputStream(convFile);
+        //fos.write(file.getBytes());
+        //fos.close();
         return convFile;
     }
 
