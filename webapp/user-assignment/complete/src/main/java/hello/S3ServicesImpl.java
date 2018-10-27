@@ -91,11 +91,11 @@ public class S3ServicesImpl implements S3Services{
 
     public File convertFromMultipart(MultipartFile file) throws Exception
     {
-        File convFile = new File(file.getOriginalFilename());
-        /*if(!convFile.getParentFile().exists())
+        File convFile = new File("tmp/" + file.getOriginalFilename());
+        if(!convFile.getParentFile().exists())
             convFile.getParentFile().mkdir();
-        if(!convFile.exists())*/
-            convFile.createTempFile(file.getOriginalFilename(),null);
+        if(!convFile.exists())
+            convFile.createNewFile();
         //FileOutputStream fos = new FileOutputStream(convFile);
         //fos.write(file.getBytes());
         //fos.close();
