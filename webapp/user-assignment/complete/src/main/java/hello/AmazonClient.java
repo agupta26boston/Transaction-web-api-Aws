@@ -25,16 +25,12 @@ public class AmazonClient {
     @Value("${amazonProperties.region}")
     private String region;
 
-    @Value("${amazonProperties.endpointUrl}")
-    private String endpointUrl;
-
     @Bean
     public AmazonS3 s3client() {
 
-        InstanceProfileCredentialsProvider provider = new InstanceProfileCredentialsProvider(true);
+        AWSCredentialsProviderChain providerChain= new AWSCredentialsProviderChain(InstanceProfileCredentialsProvider.getInstance(),new ProfileCredentialsProvider());
 
 
-        return  AmazonS3ClientBuilder.standard().withCredentials(provider).withRegion(Regions.US_EAST_1)
-                .build();
+        return AmazonS3ClientBuilder.standard().withCredentials(providerChain).build();
     }
 }
