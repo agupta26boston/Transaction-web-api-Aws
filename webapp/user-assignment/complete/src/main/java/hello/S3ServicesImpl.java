@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -48,7 +49,25 @@ public class S3ServicesImpl implements S3Services{
             //saving the meta data onto the database
             //ObjectListing o =s3client.listObjects(bucketName);
             //System.out.println(o);
-           s3client.putObject(bucketName,"stupid","you should work, please, i beg thee");
+
+            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+            String[] split = fileName.split("\\.");
+            String extension = split[split.length - 1];
+            File newFile = new File("/tmp", keyName + "." + extension);
+            if(!newFile.exists())
+                newFile.createNewFile();
+            FileOutputStream fos = new FileOutputStream(newFile);
+            fos.write(file.getBytes());
+            fos.close();
+            PutObjectRequest request = new PutObjectRequest(bucketName, keyName + "." + extension, newFile);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType("plain/text");
+            metadata.addUserMetadata("x-amz-meta-title", "someTitle");
+            request.setMetadata(metadata);
+            s3client.putObject(request);
+
+
+          // s3client.putObject(bucketName,"stupid","you should work, please, i beg thee");
         } catch (AmazonServiceException ase) {
             logger.info("Caught an AmazonServiceException from PUT requests, rejected reasons:");
             logger.info("Error Message:    " + ase.getMessage());
