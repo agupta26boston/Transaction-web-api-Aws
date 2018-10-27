@@ -42,13 +42,13 @@ public class S3ServicesImpl implements S3Services{
 //            fos.write(file.getBytes());
 //            fos.close();
             //multipart.transferTo(convFile);
-            ObjectMetadata objectMetadata=new ObjectMetadata();
-            objectMetadata.setContentLength(file.getSize());
-            s3client.putObject(new PutObjectRequest(bucketName, keyName, convertFromMultipart(file)));
+//            ObjectMetadata objectMetadata=new ObjectMetadata();
+//            objectMetadata.setContentLength(file.getSize());
+//            s3client.putObject(new PutObjectRequest(bucketName, keyName, convertFromMultipart(file)));
             //saving the meta data onto the database
             //ObjectListing o =s3client.listObjects(bucketName);
             //System.out.println(o);
-           //s3client.putObject(bucketName,"stupid","you should work, please, i beg thee");
+           s3client.putObject(bucketName,"stupid","you should work, please, i beg thee");
         } catch (AmazonServiceException ase) {
             logger.info("Caught an AmazonServiceException from PUT requests, rejected reasons:");
             logger.info("Error Message:    " + ase.getMessage());
