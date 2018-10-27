@@ -405,6 +405,8 @@ public class GreetingController {
         //create a attachment id
         UUID uuid = UUID.randomUUID();
         String attachmentId = uuid.toString();
+        Path pathLocal=null;
+        String path;
 
 
 
@@ -419,23 +421,36 @@ public class GreetingController {
                         String keyName = TransactionId + "/" + attachmentId;
                         s3Services.uploadFile(keyName, file);
 
-                        return new ResponseEntity<String>(keyName, HttpStatus.CREATED);
+
+                       // return new ResponseEntity<String>(keyName, HttpStatus.CREATED);
                     }
 
                 }
-                byte[] bytes = new byte[0];
-                bytes = file.getBytes();
-                Path path = Paths.get("\\META-INF.resources\\images\\" + file.getOriginalFilename());
-                //write the file to the correct place
-                Files.write(path, bytes);
 
+                for (final String profileName : environment.getActiveProfiles()) {
+                    if("dev".equals(profileName)&& loggedInUser != null) {
+
+                        byte[] bytes = new byte[0];
+                        bytes = file.getBytes();
+                        pathLocal = Paths.get("\\META-INF.resources\\images\\" + file.getOriginalFilename());
+                        //write the file to the correct place
+                        Files.write(pathLocal, bytes);
+                    }
+                }
+                 if(pathLocal!=null){
+                     path = pathLocal.toString();
+
+                 }
+                 else {
+                     path = "uploaded to s3";
+                 }
 
                 //find the trasactiom
                 Transaction transaction = transactionRepository.findTransactionByTransactionId(TransactionId);
                 if (transaction != null) {
                     Attachment attachment = new Attachment();
                     attachment.setAttachmentId(attachmentId);
-                    attachment.setUrl(path.toString());
+                    attachment.setUrl(path);
                     attachment.setTransaction(transaction);
 
                     //transaction.getAttachmentList().add(attachment);
