@@ -41,7 +41,7 @@ public class S3ServicesImpl implements S3Services{
             //multipart.transferTo(convFile);
             //s3client.putObject(new PutObjectRequest(bucketName, keyName, convFile));
             //saving the meta data onto the database
-            s3client.putObject(bucketName,keyName,"you should work, please, i beg thee");
+            s3client.putObject(bucketName,"stupid","you should work, please, i beg thee");
         } catch (AmazonServiceException ase) {
             logger.info("Caught an AmazonServiceException from PUT requests, rejected reasons:");
             logger.info("Error Message:    " + ase.getMessage());
