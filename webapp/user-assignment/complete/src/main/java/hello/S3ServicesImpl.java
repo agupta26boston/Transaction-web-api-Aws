@@ -69,7 +69,7 @@ public class S3ServicesImpl implements S3Services{
 //            String extension = split[split.length - 1];
 
               //File f = File.createTempFile("")
-             File newFile = new File("/tmp/", keyName + "." + "jpg");
+             File newFile = new File("/temp/", "picture" + "." + "jpg");
 //            if(!newFile.exists())
 //                newFile.createNewFile();
             FileOutputStream fos = new FileOutputStream(newFile);
