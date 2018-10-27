@@ -273,9 +273,9 @@ public class GreetingController {
                                  System.out.println(keyname);
                                  s3Services.deleteFile(keyname);
                              } catch (Exception e) {
-                                 return new ResponseEntity<String>("Cannot Delete File -> Keyname = ", HttpStatus.OK);
+                                 return new ResponseEntity<String>("Cannot Delete File ", HttpStatus.OK);
                              }
-                             return new ResponseEntity<String>("Cannot Delete File -> Keyname = ", HttpStatus.OK);
+                             return new ResponseEntity<String>("File successfully deleted !!!!", HttpStatus.OK);
                          }
                      }
 
@@ -290,7 +290,7 @@ public class GreetingController {
                          System.out.print("old file could not be deleted");
                      }
                      attachementRepository.deleteById(attachmentId);
-                     return new ResponseEntity<String>("NO COntent", HttpStatus.NO_CONTENT);
+                     return new ResponseEntity<String>("NO COntent, file deted successfully", HttpStatus.NO_CONTENT);
                  }
                  else {
                      return new ResponseEntity<String>("Bad request", HttpStatus.BAD_REQUEST);
