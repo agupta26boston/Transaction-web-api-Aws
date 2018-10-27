@@ -25,7 +25,7 @@ public class AmazonClient {
     @Value("${amazonProperties.region}")
     private String region;
 
-    @Value("${aws.endpointUrl}")
+    @Value("${amazonProperties.endpointUrl}")
     private String endpointUrl;
 
     @Bean
