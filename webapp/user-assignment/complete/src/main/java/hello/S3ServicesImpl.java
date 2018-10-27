@@ -8,6 +8,9 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
+import com.amazonaws.services.s3.transfer.Upload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,11 @@ public class S3ServicesImpl implements S3Services{
     private AmazonS3 s3client;
 
 
+    TransferManager tm = TransferManagerBuilder.standard()
+            .withS3Client(s3client)
+            .build();
+
+
 
     //@Value("${amazonProperties.bucketName}")
     private String bucketName ="csye6225-fall2018-bengret.me.csye6225.com";
@@ -43,28 +51,34 @@ public class S3ServicesImpl implements S3Services{
 //            fos.write(file.getBytes());
 //            fos.close();
             //multipart.transferTo(convFile);
-//            ObjectMetadata objectMetadata=new ObjectMetadata();
-//            objectMetadata.setContentLength(file.getSize());
-//            s3client.putObject(new PutObjectRequest(bucketName, keyName, convertFromMultipart(file)));
+            ObjectMetadata objectMetadata=new ObjectMetadata();
+            objectMetadata.setContentLength(file.getSize());
+            Upload upload = tm.upload(bucketName, keyName, new File(file.getOriginalFilename()));
+            System.out.println("Object upload started");
+
+            // Optionally, wait for the upload to finish before continuing.
+            upload.waitForCompletion();
+            System.out.println("Object upload complete");
+           // s3client.putObject(new PutObjectRequest(bucketName, keyName, convertFromMultipart(file)));
             //saving the meta data onto the database
             //ObjectListing o =s3client.listObjects(bucketName);
             //System.out.println(o);
 
-            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-            String[] split = fileName.split("\\.");
-            String extension = split[split.length - 1];
-            File newFile = new File("/tmp", keyName + "." + extension);
-            if(!newFile.exists())
-                newFile.createNewFile();
-            FileOutputStream fos = new FileOutputStream(newFile);
-            fos.write(file.getBytes());
-            fos.close();
-            PutObjectRequest request = new PutObjectRequest(bucketName, keyName + "." + extension, newFile);
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType("plain/text");
-            metadata.addUserMetadata("x-amz-meta-title", "someTitle");
-            request.setMetadata(metadata);
-            s3client.putObject(request);
+//            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+//            String[] split = fileName.split("\\.");
+//            String extension = split[split.length - 1];
+//            File newFile = new File("/tmp", keyName + "." + extension);
+//            if(!newFile.exists())
+//                newFile.createNewFile();
+//            FileOutputStream fos = new FileOutputStream(newFile);
+//            fos.write(file.getBytes());
+//            fos.close();
+//            PutObjectRequest request = new PutObjectRequest(bucketName, keyName + "." + extension, newFile);
+//            ObjectMetadata metadata = new ObjectMetadata();
+//            metadata.setContentType("plain/text");
+//            metadata.addUserMetadata("x-amz-meta-title", "someTitle");
+//            request.setMetadata(metadata);
+//            s3client.putObject(request);
 
 
           // s3client.putObject(bucketName,"stupid","you should work, please, i beg thee");
@@ -105,7 +119,8 @@ public class S3ServicesImpl implements S3Services{
     }
 
 
-    public File convertFromMultipart(MultipartFile file) throws Exception
+    public File convertFromMultipart(MultipartFile file) throws  Exception
+
     {
         File convFile = new File(file.getOriginalFilename());
         convFile.createNewFile();

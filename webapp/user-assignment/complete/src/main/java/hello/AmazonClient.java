@@ -33,6 +33,7 @@ public class AmazonClient {
 
         AmazonS3 s3client= AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(Regions.US_EAST_1).build();
         return s3client;
-        
+
+
     }
 }
