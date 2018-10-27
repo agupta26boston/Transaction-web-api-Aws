@@ -5,7 +5,11 @@
       "BucketName":{
          "Description":"NVN Code Deploy S3 Bucket Name",
          "Type":"String"
-      }
+      },
+      "AppBucket":{
+        "Description":"App Bucket",
+        "Type":"String"
+     }
    },
 
   "Resources" : {
@@ -70,14 +74,15 @@
     "Statement": [
     {
     "Action": [
-    "s3:PutObject",
-    "s3:DeleteObject",
-    "s3:GetObject"
+      "s3:Get*",
+      "s3:List*",
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "s3:PutObjectAcl"
     ],
     "Effect": "Allow",
-    "Resource": [{
-    "Fn::Sub": "arn:aws:s3:::csye6225-fall2018-kanadep.me.csye6225.com/*"
-    }]
+    "Resource": {"Fn::Join":["",["arn:aws:s3:::",{"Ref":"AppBucket"},"/*"]]}
     }
     ]
     },

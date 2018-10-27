@@ -4,6 +4,7 @@ stackstatus=""
 createStackStatus=""
 createFlag=true
 DomainName=$2
+AppBucket=""
 
 if [ -z "$StackName" ]; then
   echo "No stack name provided. Script exiting.."
@@ -14,6 +15,7 @@ if [ -z "$DomainName" ]; then
   exit 1
 fi
 Bucket=code-deploy.$DomainName
+AppBucket =$DomainName.csye6225.com
 
 echo "Starting $StackName network setup"
 
@@ -24,6 +26,7 @@ echo "$Bucket is my code-deploy s3 bucket....."
 createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
   --template-body file://csye6225-cf-cicd.json \
   --parameters ParameterKey=BucketName,ParameterValue=$Bucket \
+    ParameterKey=AppBucket,ParameterValue=$AppBucket \
   --capabilities CAPABILITY_NAMED_IAM`
 
 if [ -z "$createStackStatus" ]; then

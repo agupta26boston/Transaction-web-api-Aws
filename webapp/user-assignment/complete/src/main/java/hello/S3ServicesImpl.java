@@ -38,7 +38,7 @@ public class S3ServicesImpl implements S3Services{
     public void uploadFile(String keyName, MultipartFile file) {
         try {
             TransferManager tm = TransferManagerBuilder.standard().withS3Client(s3client).build();
-            Upload upload = tm.upload(bucketName, keyName, new File(keyName));
+            Upload upload = tm.upload(bucketName, keyName, convertFromMultipart(file));
             System.out.println("Object upload started");
 
             // Optionally, wait for the upload to finish before continuing.
@@ -95,7 +95,7 @@ public class S3ServicesImpl implements S3Services{
         /*if(!convFile.getParentFile().exists())
             convFile.getParentFile().mkdir();
         if(!convFile.exists())*/
-            convFile.createNewFile();
+            convFile.createTempFile(file.getOriginalFilename(),null);
         FileOutputStream fos = new FileOutputStream(convFile);
         fos.write(file.getBytes());
         fos.close();
