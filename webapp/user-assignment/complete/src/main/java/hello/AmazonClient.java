@@ -19,21 +19,20 @@ import javax.annotation.PostConstruct;
 @Profile("aws")
 public class AmazonClient {
 
+
+
+
     @Value("${amazonProperties.region}")
     private String region;
 
     @Bean
     public AmazonS3 s3client() {
-//
-//        AWSCredentialsProviderChain providerChain= new AWSCredentialsProviderChain(InstanceProfileCredentialsProvider.getInstance(),new ProfileCredentialsProvider());
-//
-//
-//        return AmazonS3ClientBuilder.standard().withCredentials(providerChain).build();
-        AWSCredentials credentials= new BasicAWSCredentials("AKIAJJPCUOVQXQ2G5BUA","7K9UbKvqmDDLabS943398v7rV7jgoiFVxldV/Qz6");
 
-        AmazonS3 s3client= AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(Regions.US_EAST_1).build();
-        return s3client;
 
+        InstanceProfileCredentialsProvider provider = new InstanceProfileCredentialsProvider(true);
+
+
+        return AmazonS3ClientBuilder.standard().withCredentials(provider).withRegion(Regions.US_EAST_1).build();
 
     }
 }
