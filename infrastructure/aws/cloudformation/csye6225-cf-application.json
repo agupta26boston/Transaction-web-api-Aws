@@ -1,3 +1,4 @@
+
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
@@ -104,6 +105,30 @@
     
 
 
+    "NVNCloudS3BucketPolicy":{
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "Bucket" : {"Ref": "NVNCloudS3Bucket"},
+        "PolicyDocument": {
+          "Statement": [{
+            "Action":["s3:*"],
+            "Effect":"Allow",
+            "Resource": [{ "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "bucketName" } , "/*" ]]},
+                         { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "bucketName" }]]}],
+            "Principal":"*",
+            "Condition":{
+              "StringLike":{
+                "aws:Referer":[
+                  "*"
+                ]
+              }
+            }
+            }]
+        }
+      }
+    },
+
+
     "NVNCloudRDSDB": {
       "Type": "AWS::RDS::DBInstance",
       "Properties": {
@@ -199,6 +224,7 @@
                           "systemctl enable tomcat.service",
                           "systemctl start tomcat.service",
 
+
                           "cd /opt/tomcat",
 
                           "sudo touch bin/setenv.sh",
@@ -208,6 +234,7 @@
                           "sudo echo 'export DIALECT=org.hibernate.dialect.MySQL5Dialect' >> bin/setenv.sh",
                           "sudo echo 'export DRIVER=com.mysql.jdbc.Driver' >> bin/setenv.sh",
                           "sudo echo 'export SPRING_PROFILES_ACTIVE=aws' >> bin/setenv.sh",
+
 
                           {
                             "Fn::Join": [
@@ -220,7 +247,9 @@
                                     "Endpoint.Address"
                                   ]
                                 },
+
                                 ":3306/",{"Ref" : "DBName"},"' >> bin/setenv.sh"
+
                               ]
                             ]
                           },
@@ -235,7 +264,9 @@
                             ]
                           },
 
+
                           "systemctl start tomcat.service"
+
 
                       ]
                   ]
