@@ -9,6 +9,7 @@
         "Properties":{
           "CidrBlock": "10.0.0.0/16",
           "EnableDnsSupport":true,
+          "EnableDnsHostnames" :true,
           "InstanceTenancy": "default",
               "Tags": [{"Key": "Name","Value": {"Fn::Join":["",[{"Ref":"AWS::StackName"},"-csye6225-vpc"]]}
                   }]
