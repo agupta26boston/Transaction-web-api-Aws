@@ -5,7 +5,11 @@
       "BucketName":{
          "Description":"NVN Code Deploy S3 Bucket Name",
          "Type":"String"
-      }
+      },
+      "AppBucket":{
+        "Description":"App Bucket",
+        "Type":"String"
+     }
    },
 
   "Resources" : {
@@ -14,14 +18,15 @@
       "Properties":{
          "BucketName":{
             "Ref":"BucketName"
-         }
+         },
+         "AccessControl": "Private"
       }
    },
 
    "TravisUploadToS3Policy":{
-    "Type":"AWS::IAM::Policy",
+    "Type":"AWS::IAM::ManagedPolicy",
     "Properties":{
-       "PolicyName":"Travis-Upload-To-S3",
+       "ManagedPolicyName":"Travis-Upload-To-S3",
        "PolicyDocument":{
           "Version": "2012-10-17",
           "Statement":[
@@ -36,7 +41,7 @@
     }
  },
 
- "EC2ServiceRole":{
+ "CodeDeployEC2ServiceRole":{
   "Type":"AWS::IAM::Role",
   "Properties":{
      "AssumeRolePolicyDocument":{
@@ -49,7 +54,7 @@
                  ]
               },
               "Action":[
-                 "sts:AssumeRole"
+                "sts:AssumeRole"
               ]
            }
         ]
@@ -59,13 +64,39 @@
   }
 },
 
+  "AccessAttachmentToS3Bucket": {
+    "Type" : "AWS::IAM::ManagedPolicy",
+    "Properties":{
+    "Description" : "Policy for uploading attachments into S3",
+    "ManagedPolicyName" : "Access-Attachment-To-S3-Bucket",
+    "PolicyDocument":{
+    "Version": "2012-10-17",
+    "Statement": [
+    {
+    "Action": [
+      "s3:Get*",
+      "s3:List*",
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "s3:PutObjectAcl"
+    ],
+    "Effect": "Allow",
+    "Resource": {"Fn::Join":["",["arn:aws:s3:::",{"Ref":"AppBucket"},"/*"]]}
+    }
+    ]
+    },
+    "Roles" : [{"Ref": "CodeDeployEC2ServiceRole"}]
+    }
+    },
+
   "CodeDeployEC2S3" : {
     "Type" : "AWS::IAM::ManagedPolicy",
     "Properties" : {
     "ManagedPolicyName" : "CodeDeploy-EC2-S3",
     "Roles":[
     {
-        "Ref":"EC2ServiceRole"
+        "Ref":"CodeDeployEC2ServiceRole"
     }
     ],
     "PolicyDocument" :   {
@@ -92,7 +123,7 @@
      "Path":"/",
      "Roles":[
         {
-           "Ref":"EC2ServiceRole"
+           "Ref":"CodeDeployEC2ServiceRole"
         }
      ]
   }
