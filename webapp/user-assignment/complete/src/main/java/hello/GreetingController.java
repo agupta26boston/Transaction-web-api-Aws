@@ -273,9 +273,11 @@ public class GreetingController {
                                  System.out.println(keyname);
                                  s3Services.deleteFile(keyname);
                              } catch (Exception e) {
-                                 return new ResponseEntity<String>("Cannot Delete File -> Keyname = ", HttpStatus.OK);
+
+                                 return new ResponseEntity<String>("Cannot Delete File ", HttpStatus.OK);
                              }
-                             return new ResponseEntity<String>("Cannot Delete File -> Keyname = ", HttpStatus.OK);
+                             return new ResponseEntity<String>("File successfully deleted !!!!", HttpStatus.OK);
+
                          }
                      }
 
@@ -290,7 +292,7 @@ public class GreetingController {
                          System.out.print("old file could not be deleted");
                      }
                      attachementRepository.deleteById(attachmentId);
-                     return new ResponseEntity<String>("NO COntent", HttpStatus.NO_CONTENT);
+                     return new ResponseEntity<String>("NO COntent, file deted successfully", HttpStatus.NO_CONTENT);
                  }
                  else {
                      return new ResponseEntity<String>("Bad request", HttpStatus.BAD_REQUEST);
@@ -405,11 +407,14 @@ public class GreetingController {
         //create a attachment id
         UUID uuid = UUID.randomUUID();
         String attachmentId = uuid.toString();
+        Path pathLocal=null;
+        String path;
+
 
 
 
         if (loggedInUser != null) {
-            byte[] bytes = new byte[0];
+
             try {
 
 
@@ -419,22 +424,37 @@ public class GreetingController {
                         String keyName = TransactionId + "/" + attachmentId;
                         s3Services.uploadFile(keyName, file);
 
-                        return new ResponseEntity<String>(keyName, HttpStatus.CREATED);
+
+
+                       // return new ResponseEntity<String>(keyName, HttpStatus.CREATED);
                     }
 
                 }
-                bytes = file.getBytes();
-                Path path = Paths.get("\\META-INF.resources\\images\\" + file.getOriginalFilename());
-                //write the file to the correct place
-                Files.write(path, bytes);
 
+                for (final String profileName : environment.getActiveProfiles()) {
+                    if("dev".equals(profileName)&& loggedInUser != null) {
+
+                        byte[] bytes = new byte[0];
+                        bytes = file.getBytes();
+                        pathLocal = Paths.get("\\META-INF.resources\\images\\" + file.getOriginalFilename());
+                        //write the file to the correct place
+                        Files.write(pathLocal, bytes);
+                    }
+                }
+                 if(pathLocal!=null){
+                     path = pathLocal.toString();
+
+                 }
+                 else {
+                     path = "uploaded to s3";
+                 }
 
                 //find the trasactiom
                 Transaction transaction = transactionRepository.findTransactionByTransactionId(TransactionId);
                 if (transaction != null) {
                     Attachment attachment = new Attachment();
                     attachment.setAttachmentId(attachmentId);
-                    attachment.setUrl(path.toString());
+                    attachment.setUrl(path);
                     attachment.setTransaction(transaction);
 
                     //transaction.getAttachmentList().add(attachment);

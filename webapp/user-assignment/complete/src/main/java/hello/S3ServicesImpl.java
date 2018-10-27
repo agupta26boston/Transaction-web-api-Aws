@@ -5,14 +5,19 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
+import com.amazonaws.services.s3.transfer.Upload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -28,18 +33,38 @@ public class S3ServicesImpl implements S3Services{
     @Autowired
     private AmazonS3 s3client;
 
-    @Value("${amazonProperties.bucketName}")
-    private String bucketName;
+
+    TransferManager tm = TransferManagerBuilder.standard()
+            .withS3Client(s3client)
+            .build();
+
+
+
+    //@Value("${amazonProperties.bucketName}")
+    private String bucketName ="csye6225-fall2018-bengret.me.csye6225.com";
     @Override
     public void uploadFile(String keyName, MultipartFile file) {
         try {
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(file.getSize());
-            s3client.putObject(new PutObjectRequest(bucketName, keyName,convertFromMultipart(file)));
-            //saving the meta data onto the database
 
-        } catch(IOException ioe) {
-            logger.error("IOException: " + ioe.getMessage());
+            TransferManager tm = TransferManagerBuilder.standard().withS3Client(s3client).build();
+            Upload upload = tm.upload(bucketName, keyName, convertFromMultipart(file));
+            System.out.println("Object upload started");
+
+            // Optionally, wait for the upload to finish before continuing.
+            upload.waitForCompletion();
+            System.out.println("Object upload complete");
+
+            //ObjectMetadata metadata = new ObjectMetadata();
+            //metadata.setContentLength(file.getSize());
+            //s3client.putObject(new PutObjectRequest(bucketName, keyName,convertFromMultipart(file)));
+
+            //saving the meta data onto the database
+            //ObjectListing o =s3client.listObjects(bucketName);
+            //System.out.println(o);
+
+         //catch(IOException ioe) {
+            //logger.error("IOException: " + ioe.getMessage() ," " +ioe);
+
         } catch (AmazonServiceException ase) {
             logger.info("Caught an AmazonServiceException from PUT requests, rejected reasons:");
             logger.info("Error Message:    " + ase.getMessage());
@@ -77,10 +102,14 @@ public class S3ServicesImpl implements S3Services{
     }
 
 
-    public File convertFromMultipart(MultipartFile file) throws Exception
+    public File convertFromMultipart(MultipartFile file) throws  Exception
+
     {
-        File convFile = new File(file.getOriginalFilename());
-        convFile.createNewFile();
+        File convFile = new File("tmp/" + file.getOriginalFilename());
+        if(!convFile.getParentFile().exists())
+            convFile.getParentFile().mkdir();
+        if(!convFile.exists())
+            convFile.createNewFile();
         FileOutputStream fos = new FileOutputStream(convFile);
         fos.write(file.getBytes());
         fos.close();
