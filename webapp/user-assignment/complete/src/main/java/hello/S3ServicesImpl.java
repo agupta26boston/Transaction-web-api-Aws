@@ -38,7 +38,9 @@ public class S3ServicesImpl implements S3Services{
             String[] split = fileName.split("\\.");
             String extension = split[split.length - 1];
             File newFile = new File("/tmp", keyName + "." + extension);
-            PutObjectRequest request = new PutObjectRequest(bucketName, keyName, new File(String.valueOf(newFile)));
+            if(!newFile.exists())
+                newFile.createNewFile();
+            PutObjectRequest request = new PutObjectRequest(bucketName, keyName, newFile);
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType("plain/text");
             metadata.addUserMetadata("x-amz-meta-title", "someTitle");
