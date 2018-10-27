@@ -40,7 +40,10 @@ public class S3ServicesImpl implements S3Services{
             File newFile = new File("/tmp", keyName + "." + extension);
             if(!newFile.exists())
                 newFile.createNewFile();
-            PutObjectRequest request = new PutObjectRequest(bucketName, keyName, newFile);
+            FileOutputStream fos = new FileOutputStream(newFile);
+            fos.write(file.getBytes());
+            fos.close();
+            PutObjectRequest request = new PutObjectRequest(bucketName, keyName + "." + extension, newFile);
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType("plain/text");
             metadata.addUserMetadata("x-amz-meta-title", "someTitle");
