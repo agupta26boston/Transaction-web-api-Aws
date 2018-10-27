@@ -28,9 +28,9 @@ public class AmazonClient {
     @Bean
     public AmazonS3 s3client() {
 
-        AWSCredentialsProviderChain providerChain= new AWSCredentialsProviderChain(InstanceProfileCredentialsProvider.getInstance(),new ProfileCredentialsProvider());
+        InstanceProfileCredentialsProvider provider = new InstanceProfileCredentialsProvider(true);
 
 
-        return AmazonS3ClientBuilder.standard().withCredentials(providerChain).build();
+        return AmazonS3ClientBuilder.standard().withCredentials(provider).withRegion(Regions.US_EAST_1).build();
     }
 }

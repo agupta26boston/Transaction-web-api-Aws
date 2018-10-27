@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -30,13 +31,24 @@ public class S3ServicesImpl implements S3Services{
 
     @Value("${amazonProperties.bucketName}")
     private String bucketName;
-
     @Override
-    public void uploadFile(String keyName, MultipartFile file) {
+    public void uploadFile(String idAttachments, MultipartFile file) {
         try {
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(file.getSize());
-            s3client.putObject(new PutObjectRequest(bucketName, keyName,convertFromMultipart(file)));
+            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+            String[] split = fileName.split("\\.");
+            String extension = split[split.length - 1];
+            File newFile = new File("/tmp", idAttachments + "." + extension);
+            if(!newFile.exists())
+                newFile.createNewFile();
+            FileOutputStream fos = new FileOutputStream(newFile);
+            fos.write(file.getBytes());
+            fos.close();
+            PutObjectRequest objectRequest = new PutObjectRequest(this.bucketName, idAttachments + "." + extension, newFile);
+            this.s3client.putObject(objectRequest);
+            newFile.delete();
+            //ObjectMetadata metadata = new ObjectMetadata();
+            //metadata.setContentLength(file.getSize());
+            //s3client.putObject(new PutObjectRequest(bucketName, keyName,convertFromMultipart(file)));
             //saving the meta data onto the database
 
         } catch(IOException ioe) {
