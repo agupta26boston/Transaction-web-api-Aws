@@ -5,6 +5,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.slf4j.Logger;
@@ -41,7 +42,9 @@ public class S3ServicesImpl implements S3Services{
             //multipart.transferTo(convFile);
             //s3client.putObject(new PutObjectRequest(bucketName, keyName, convFile));
             //saving the meta data onto the database
-            s3client.putObject(bucketName,"stupid","you should work, please, i beg thee");
+            ObjectListing o =s3client.listObjects(bucketName);
+            System.out.println(o);
+           // s3client.putObject(bucketName,"stupid","you should work, please, i beg thee");
         } catch (AmazonServiceException ase) {
             logger.info("Caught an AmazonServiceException from PUT requests, rejected reasons:");
             logger.info("Error Message:    " + ase.getMessage());
