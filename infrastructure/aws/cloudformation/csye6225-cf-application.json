@@ -97,34 +97,11 @@
     "NVNCloudS3Bucket": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
-        "BucketName": { "Ref": "bucketName" }
+        "BucketName": { "Ref": "bucketName" },
+        "AccessControl": "Private"
       }
     },
-
-    "NVNCloudS3BucketPolicy":{
-      "Type" : "AWS::S3::BucketPolicy",
-      "Properties" : {
-        "Bucket" : {"Ref": "NVNCloudS3Bucket"},
-        "PolicyDocument": {
-          "Statement": [{
-
-            "Action":["*"],
-
-
-            "Effect":"Allow",
-            "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "bucketName" } , "/*" ]]},
-            "Principal":"*",
-            "Condition":{
-              "StringLike":{
-                "aws:Referer":[
-                  "*"
-                ]
-              }
-            }
-            }]
-        }
-      }
-    },
+    
 
 
     "NVNCloudRDSDB": {
@@ -222,11 +199,13 @@
                           "systemctl enable tomcat.service",
                           "systemctl start tomcat.service",
 
+                          "cd /opt/tomcat",
+
                           "sudo touch bin/setenv.sh",
                           "sudo chmod 777 bin/setenv.sh",
-                          "sudo echo 'export USERNAME=csye6225master' >> bin/setenv.sh",
-                          "sudo echo 'export PASSWORD=csye6225password' >> bin/setenv.sh",
-                          "sudo echo 'export DIALECT=org.hibernate.dialect.MySQLDialect5' >> bin/setenv.sh",
+                          { "Fn::Join":["",["sudo echo 'export USERNAME=",{"Ref" : "DBUser"}, "'>> bin/setenv.sh"]]},
+                          { "Fn::Join":["",["sudo echo 'export PASSWORD=",{"Ref" : "DBPassword"}, "'>> bin/setenv.sh"]]},       
+                          "sudo echo 'export DIALECT=org.hibernate.dialect.MySQL5Dialect' >> bin/setenv.sh",
                           "sudo echo 'export DRIVER=com.mysql.jdbc.Driver' >> bin/setenv.sh",
                           "sudo echo 'export SPRING_PROFILES_ACTIVE=aws' >> bin/setenv.sh",
 
@@ -241,7 +220,7 @@
                                     "Endpoint.Address"
                                   ]
                                 },
-                                ":3306/csye6225' >> bin/setenv.sh"
+                                ":3306/",{"Ref" : "DBName"},"' >> bin/setenv.sh"
                               ]
                             ]
                           },
