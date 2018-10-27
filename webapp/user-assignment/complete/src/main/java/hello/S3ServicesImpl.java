@@ -38,7 +38,7 @@ public class S3ServicesImpl implements S3Services{
     public void uploadFile(String keyName, MultipartFile file) {
         try {
             TransferManager tm = TransferManagerBuilder.standard().withS3Client(s3client).build();
-            Upload upload = tm.upload(bucketName, keyName, convertFromMultipart(file));
+            Upload upload = tm.upload(bucketName, keyName, new File(file.getOriginalFilename()));
             System.out.println("Object upload started");
 
             // Optionally, wait for the upload to finish before continuing.
