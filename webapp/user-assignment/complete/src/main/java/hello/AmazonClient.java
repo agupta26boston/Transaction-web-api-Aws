@@ -24,10 +24,15 @@ public class AmazonClient {
 
     @Bean
     public AmazonS3 s3client() {
+//
+//        AWSCredentialsProviderChain providerChain= new AWSCredentialsProviderChain(InstanceProfileCredentialsProvider.getInstance(),new ProfileCredentialsProvider());
+//
+//
+//        return AmazonS3ClientBuilder.standard().withCredentials(providerChain).build();
+        AWSCredentials credentials= new BasicAWSCredentials("AKIAJJPCUOVQXQ2G5BUA","7K9UbKvqmDDLabS943398v7rV7jgoiFVxldV/Qz6");
 
-        AWSCredentialsProviderChain providerChain= new AWSCredentialsProviderChain(InstanceProfileCredentialsProvider.getInstance(),new ProfileCredentialsProvider());
-
-
-        return AmazonS3ClientBuilder.standard().withCredentials(providerChain).build();
+        AmazonS3 s3client= AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(Regions.US_EAST_1).build();
+        return s3client;
+        
     }
 }
