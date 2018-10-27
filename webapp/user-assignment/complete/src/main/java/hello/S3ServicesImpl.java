@@ -70,8 +70,8 @@ public class S3ServicesImpl implements S3Services{
 
               //File f = File.createTempFile("")
              File newFile = new File("/temp/", "picture" + "." + "jpg");
-//            if(!newFile.exists())
-//                newFile.createNewFile();
+            if(!newFile.exists())
+                newFile.createNewFile();
             FileOutputStream fos = new FileOutputStream(newFile);
             fos.write(file.getBytes());
             fos.close();
