@@ -90,6 +90,10 @@
         "ReadCapacityUnits": "5",
         "WriteCapacityUnits": "5"
       },
+      "TimeToLiveSpecification": {
+        "AttributeName": "TimeToLive",
+        "Enabled": "TRUE"
+      },
       "TableName": "csye6225"
           }
     },
