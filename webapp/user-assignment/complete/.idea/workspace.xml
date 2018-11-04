@@ -2,8 +2,56 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c1ba12f1-eb31-44d8-90d6-466e81f2c8e6" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../appspec.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/.idea/.name" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/src/main/java/hello/BasicConfiguration.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/src/main/java/hello/GreetingController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/src/main/java/hello/GreetingService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/src/main/java/hello/Transaction.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/src/main/java/hello/User.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/src/main/java/hello/UserRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/src/main/main.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../complete/src/test/test.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../infrastructure/aws/cloudformation/csye6225-aws-cf-create-application-stack.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../infrastructure/aws/cloudformation/csye6225-aws-cf-create-cicd-stack.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../infrastructure/aws/cloudformation/csye6225-aws-cf-terminate-application-stack.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../infrastructure/aws/cloudformation/csye6225-aws-cf-terminate-ci-cd-stack.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../infrastructure/aws/cloudformation/csye6225-cf-application.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../infrastructure/aws/cloudformation/csye6225-cf-cicd.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../infrastructure/aws/codedeploy/afterInstall.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../infrastructure/aws/codedeploy/applicationStart.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Chocolate-Covered-Strawberry-Cupcakes4.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/hello/AmazonClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/hello/AttachementRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/hello/Attachment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/hello/S3Services.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/hello/S3ServicesImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/hello/Transaction.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/hello/TransactionRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/application-aws.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/application-dev.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../../../.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../.travis.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../infrastructure/aws/cloudformation/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../infrastructure/aws/cloudformation/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../infrastructure/aws/cloudformation/csye6225-aws-cf-create-stack.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../../../infrastructure/aws/cloudformation/csye6225-aws-cf-create-stack.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../infrastructure/aws/cloudformation/csye6225-cf-networking.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../infrastructure/aws/cloudformation/csye6225-cf-networking.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hello/Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hello/Application.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hello/GreetingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hello/GreetingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hello/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hello/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/hello/GreetingControllerTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/hello/GreetingControllerTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../initial/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../initial/pom.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,6 +64,7 @@
     <session id="-194215446">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
+          <entry key="project.closed" value="1" />
           <entry key="project.open.time.1" value="1" />
           <entry key="project.opened" value="1" />
         </counts>
@@ -132,12 +181,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1541285743672</updated>
-      <workItem from="1541285745372" duration="456000" />
+      <workItem from="1541285745372" duration="1073000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="456000" />
+    <option name="totallyTimeSpent" value="1073000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-1" width="1920" height="923" extended-state="6" />
