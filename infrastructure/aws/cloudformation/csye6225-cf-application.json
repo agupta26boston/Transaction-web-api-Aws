@@ -91,6 +91,10 @@
         "ReadCapacityUnits": "5",
         "WriteCapacityUnits": "5"
       },
+      "TimeToLiveSpecification": {
+        "AttributeName": "TimeToLive",
+        "Enabled": "TRUE"
+      },
       "TableName": "csye6225"
           }
     },
@@ -249,6 +253,13 @@
               }
             }
           }
+          },
+          "SNSPasswordResetTopic":{
+            "Type" : "AWS::SNS::Topic",
+            "Properties" : {
+              "DisplayName" : "forgotPassword",
+              "TopicName" : "forgotPassword"
+            }
           }      
   },
   "Outputs": {
@@ -261,6 +272,11 @@
       "Description": "EC2 Instance",
       "Value": { "Ref": "EC2Instance"},
       "Export" : { "Name" : "EC2Instance" }
+    },
+    "SNSTopicARN": {
+      "Description": "SNS Topic Arn",
+      "Value": { "Ref": "SNSPasswordResetTopic"},
+      "Export" : { "Name" : "SNSTopicARN" }
     }
   }
 
