@@ -40,8 +40,7 @@ public class S3ServicesImpl implements S3Services{
 
 
 
-    //@Value("${amazonProperties.bucketName}")
-    private String bucketName ="csye6225-fall2018-bengret.me.csye6225.com";
+    @Value("${amazonProperties.bucketName}")
     @Override
     public void uploadFile(String keyName, MultipartFile file) {
         try {
