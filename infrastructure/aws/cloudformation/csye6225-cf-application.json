@@ -257,10 +257,19 @@
           "SNSPasswordResetTopic":{
             "Type" : "AWS::SNS::Topic",
             "Properties" : {
-              "DisplayName" : "forgotPassword",
-              "TopicName" : "forgotPassword"
+              "DisplayName" : "PasswordReset",
+              "TopicName" : "PasswordReset"
             }
-          }      
+          },
+          "LambdaResourcePolicy": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName" : {"Fn::ImportValue" : "PasswordReset"},
+              "Principal": "sns.amazonaws.com",
+              "Action": "lambda:InvokeFunction",
+              "SourceArn" : { "Ref" : "SNSPasswordResetTopic" }
+            }
+          }          
   },
   "Outputs": {
     "WebAppS3BucketName": {

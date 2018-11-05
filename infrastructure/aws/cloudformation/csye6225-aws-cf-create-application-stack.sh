@@ -72,6 +72,8 @@ myresources '`AWS::EC2::Instance`'
 myresources '`AWS::DynamoDB::Table`'
 myresources '`AWS::S3::Bucket`'
 myresources '`AWS::RDS::DBInstance`'
+myresources '`AWS::SNS::Topic`'
+myresources '`AWS::Lambda::Permission`'
 
   stackstatus=`aws cloudformation describe-stacks --stack-name $StackName --query 'Stacks[*][StackStatus]' --output text`
   sleep 20
