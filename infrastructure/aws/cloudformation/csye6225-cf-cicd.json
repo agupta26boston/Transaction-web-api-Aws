@@ -353,7 +353,6 @@
     "Ec2TagFilters": [{"Key":"Name","Type":"KEY_AND_VALUE","Value":"CloudEC2"}],
     "ServiceRoleArn": { "Fn::GetAtt" : [ "CodeDeployServiceRole", "Arn" ] }
     }
-  }
   },
 
   "CWLogPolicy":{
@@ -379,11 +378,12 @@
        },
        "Roles":[
           {
-             "Ref":"EC2ServiceRole"
+             "Ref":"CodeDeployEC2ServiceRole"
           }
        ]
     }
- },
+ }
+  },
 
   "Outputs": {
     "EC2InstanceProfile": {
