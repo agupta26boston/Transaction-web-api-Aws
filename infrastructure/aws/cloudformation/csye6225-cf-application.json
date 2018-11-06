@@ -194,7 +194,7 @@
                           "echo log_group_name = stage >> /tmp/cwlogs.conf \n",
                           "echo initial_position = start_of_file >> /tmp/cwlogs.conf \n",
                           {
-                            "Fn:Join": [
+                            "Fn::Join": [
                               "",
                               [
                                 "sudo python awslogs-agent-setup.py -n -r",
