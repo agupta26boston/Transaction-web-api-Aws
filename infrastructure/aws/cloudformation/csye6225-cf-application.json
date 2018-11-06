@@ -185,15 +185,24 @@
                           "service codedeploy-agent start \n",
                           "sudo wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py \n",
                           "sudo touch /tmp/cwlogs.conf \n",
-                          "echo [general] > /tmp/cwlogs.conf \n",
-                          "echo state_file = /var/awslogs/state/agent-state > /tmp/cwlogs.conf \n",
-                          "echo \n > /tmp/cwlogs.conf \n",
-                          "echo [/var/log/messages] > /tmp/cwlogs.conf \n",
-                          "echo file = /var/log/messages > /tmp/cwlogs.conf \n",
-                          "echo log_stream_name = messages > /tmp/cwlogs.conf \n",
-                          "echo log_group_name = stage > /tmp/cwlogs.conf \n",
-                          "echo initial_position = start_of_file > /tmp/cwlogs.conf \n",
-                          "sudo python awslogs-agent-setup.py -n -r ",{ "Ref" : "AWS::Region" }," -c /tmp/cwlogs.conf  \n",
+                          "echo [general] >> /tmp/cwlogs.conf \n",
+                          "echo state_file = /var/awslogs/state/agent-state >> /tmp/cwlogs.conf \n",
+                          "echo >> /tmp/cwlogs.conf \n",
+                          "echo [/var/log/messages] >> /tmp/cwlogs.conf \n",
+                          "echo file = /var/log/messages >> /tmp/cwlogs.conf \n",
+                          "echo log_stream_name = messages >> /tmp/cwlogs.conf \n",
+                          "echo log_group_name = stage >> /tmp/cwlogs.conf \n",
+                          "echo initial_position = start_of_file >> /tmp/cwlogs.conf \n",
+                          {
+                            "Fn:Join": [
+                              "",
+                              [
+                                "sudo python awslogs-agent-setup.py -n -r",
+                                { "Ref" : "AWS::Region" },
+                                " -c /tmp/cwlogs.conf  \n"
+                              ]
+                            ]
+                          }, 
                           "sudo cd /etc/systemd/system \n",
                           {
                             "Fn::Join": [
@@ -210,7 +219,6 @@
                                   "TimeoutSec=infinity \n",
                                   "PIDFile=/var/awslogs/state/awslogs.pid \n",
                                   "ExecStart=/var/awslogs/bin/awslogs-agent-launcher.sh --start --background --pidfile $PIDFILE --user awslogs --chuid awslogs &amp; \n",
-
                                   "[Install] \n",
                                   "WantedBy=multi-user.target \n",
                                   "EOT' \n"
