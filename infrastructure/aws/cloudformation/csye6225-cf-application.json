@@ -207,7 +207,7 @@
                           {
                             "Fn::Join": [
                                 "",
-                                ["sudo bash 'cat <<EOT > awslogs.service \n",
+                                ["sudo bash -c 'cat <<EOT > awslogs.service \n",
                                   "[Unit] \n",
                                   "Description=Service for CloudWatch Logs agent \n",
                                   "After=rc-local.service \n",
@@ -235,7 +235,7 @@
                           "useradd -M -s /bin/nologin -g tomcat -d /opt/tomcat tomcat",
                           "cd /tmp",
                           "wget http://apache.mirrors.pair.com/tomcat/tomcat-8/v8.5.34/bin/apache-tomcat-8.5.34.tar.gz",
-                          "mkdir /opt/tomcat",
+                          "#mkdir /opt/tomcat",
                           "tar xvf apache-tomcat-8*tar.gz -C /opt/tomcat --strip-components=1",
                           "cd /opt/tomcat",
                           "chgrp -R tomcat /opt/tomcat",
