@@ -47,6 +47,9 @@
  "CodeDeployEC2ServiceRole":{
   "Type":"AWS::IAM::Role",
   "Properties":{
+    "ManagedPolicyArns":[
+      "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  ],
      "AssumeRolePolicyDocument":{
         "Statement":[
            {
@@ -79,6 +82,7 @@
     "Action": [
       "s3:Get*",
       "s3:List*",
+      "sns:*",
       "s3:GetObject",
       "s3:PutObject",
       "s3:DeleteObject",
@@ -109,7 +113,7 @@
       "Action" :  [
                   "s3:Get*",
                   "s3:List*",
-
+                  "sns:*",
                   "s3:GetObject",
                   "s3:PutObject",
                   "s3:DeleteObject",
@@ -353,6 +357,30 @@
     "Ec2TagFilters": [{"Key":"Name","Type":"KEY_AND_VALUE","Value":"CloudEC2"}],
     "ServiceRoleArn": { "Fn::GetAtt" : [ "CodeDeployServiceRole", "Arn" ] }
     }
+
+  },  
+  "CodeDeployApplicationforLamda":{
+    "Type" : "AWS::CodeDeploy::Application",
+    "Properties" : {
+      "ApplicationName" : "LamdaCodedeploy",
+      "ComputePlatform" : "Lambda"
+    }
+  },
+  
+  "CodeDeploymentGroupforLamda":{
+    "Type" : "AWS::CodeDeploy::DeploymentGroup",
+    "Properties": {
+      "DeploymentGroupName": "CloudDeployGroupforLamda",
+      "DeploymentStyle": {
+        "DeploymentType": "BLUE_GREEN",
+        "DeploymentOption": "WITH_TRAFFIC_CONTROL"
+      },
+      "ApplicationName": {"Ref" :"CodeDeployApplicationforLamda"},
+      "DeploymentConfigName" : "CodeDeployDefault.LambdaAllAtOnce",
+      "ServiceRoleArn": { "Fn::GetAtt" : [ "CodeDeployServiceRole", "Arn" ] }
+      }
+    }
+
   },
 
   "CWLogPolicy":{
@@ -391,7 +419,7 @@
       "Value": { "Ref": "EC2InstanceProfile"},
       "Export" : { "Name" : "EC2InstanceProfile" }
     }
-  }
+}
 
 }
 
