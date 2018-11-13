@@ -33,7 +33,10 @@
              {
                 "Effect":"Allow",
                 "Resource":{"Fn::Join":["",["arn:aws:s3:::",{"Ref":"BucketName"},"/*"]]},
-                "Action":["s3:PutObject"]
+                "Action":["s3:Get*",
+                  "s3:List*",
+                  "s3:Put*",
+                  "s3:Delete*"]
              }
           ]
        },
@@ -44,6 +47,9 @@
  "CodeDeployEC2ServiceRole":{
   "Type":"AWS::IAM::Role",
   "Properties":{
+    "ManagedPolicyArns":[
+      "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  ],
      "AssumeRolePolicyDocument":{
         "Statement":[
            {
@@ -76,6 +82,7 @@
     "Action": [
       "s3:Get*",
       "s3:List*",
+      "sns:*",
       "s3:GetObject",
       "s3:PutObject",
       "s3:DeleteObject",
@@ -106,10 +113,12 @@
       "Action" :  [
                   "s3:Get*",
                   "s3:List*",
+                  "sns:*",
                   "s3:GetObject",
                   "s3:PutObject",
                   "s3:DeleteObject",
                   "s3:PutObjectAcl"
+
                 ],
       "Resource" :"*"
     }]
@@ -348,7 +357,60 @@
     "Ec2TagFilters": [{"Key":"Name","Type":"KEY_AND_VALUE","Value":"CloudEC2"}],
     "ServiceRoleArn": { "Fn::GetAtt" : [ "CodeDeployServiceRole", "Arn" ] }
     }
-  }
+
+  },  
+  "CodeDeployApplicationforLamda":{
+    "Type" : "AWS::CodeDeploy::Application",
+    "Properties" : {
+      "ApplicationName" : "LamdaCodedeploy",
+      "ComputePlatform" : "Lambda"
+    }
+  },
+  
+  "CodeDeploymentGroupforLamda":{
+    "Type" : "AWS::CodeDeploy::DeploymentGroup",
+    "Properties": {
+      "DeploymentGroupName": "CloudDeployGroupforLamda",
+      "DeploymentStyle": {
+        "DeploymentType": "BLUE_GREEN",
+        "DeploymentOption": "WITH_TRAFFIC_CONTROL"
+      },
+      "ApplicationName": {"Ref" :"CodeDeployApplicationforLamda"},
+      "DeploymentConfigName" : "CodeDeployDefault.LambdaAllAtOnce",
+      "ServiceRoleArn": { "Fn::GetAtt" : [ "CodeDeployServiceRole", "Arn" ] }
+      }
+    }
+
+  },
+
+  "CWLogPolicy":{
+    "Type":"AWS::IAM::Policy",
+    "Properties":{
+       "PolicyName":"CW-LogPolicy",
+       "PolicyDocument":{
+          "Version": "2012-10-17",
+          "Statement":[
+             {
+               "Effect": "Allow",
+               "Action": [
+                 "logs:CreateLogGroup",
+                 "logs:CreateLogStream",
+                 "logs:PutLogEvents",
+                 "logs:DescribeLogStreams"
+                 ],
+               "Resource": [
+                 "arn:aws:logs:*:*:*"
+                 ]
+             }
+          ]
+       },
+       "Roles":[
+          {
+             "Ref":"CodeDeployEC2ServiceRole"
+          }
+       ]
+    }
+ }
   },
 
   "Outputs": {
@@ -357,7 +419,7 @@
       "Value": { "Ref": "EC2InstanceProfile"},
       "Export" : { "Name" : "EC2InstanceProfile" }
     }
-  }
+}
 
 }
 

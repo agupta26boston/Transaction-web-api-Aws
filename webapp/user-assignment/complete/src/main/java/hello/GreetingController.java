@@ -273,9 +273,11 @@ public class GreetingController {
                                  System.out.println(keyname);
                                  s3Services.deleteFile(keyname);
                              } catch (Exception e) {
+
                                  return new ResponseEntity<String>("Cannot Delete File ", HttpStatus.OK);
                              }
                              return new ResponseEntity<String>("File successfully deleted !!!!", HttpStatus.OK);
+
                          }
                      }
 
@@ -410,6 +412,7 @@ public class GreetingController {
 
 
 
+
         if (loggedInUser != null) {
 
             try {
@@ -420,6 +423,7 @@ public class GreetingController {
 
                         String keyName = TransactionId + "/" + attachmentId;
                         s3Services.uploadFile(keyName, file);
+
 
 
                        // return new ResponseEntity<String>(keyName, HttpStatus.CREATED);

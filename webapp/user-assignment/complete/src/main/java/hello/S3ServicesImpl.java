@@ -5,6 +5,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.TransferManager;
@@ -32,11 +33,19 @@ public class S3ServicesImpl implements S3Services{
     @Autowired
     private AmazonS3 s3client;
 
+
+    TransferManager tm = TransferManagerBuilder.standard()
+            .withS3Client(s3client)
+            .build();
+
+
+
     @Value("${amazonProperties.bucketName}")
     private String bucketName;
     @Override
     public void uploadFile(String keyName, MultipartFile file) {
         try {
+
             TransferManager tm = TransferManagerBuilder.standard().withS3Client(s3client).build();
             Upload upload = tm.upload(bucketName, keyName, convertFromMultipart(file));
             System.out.println("Object upload started");
@@ -48,10 +57,14 @@ public class S3ServicesImpl implements S3Services{
             //ObjectMetadata metadata = new ObjectMetadata();
             //metadata.setContentLength(file.getSize());
             //s3client.putObject(new PutObjectRequest(bucketName, keyName,convertFromMultipart(file)));
+
             //saving the meta data onto the database
+            //ObjectListing o =s3client.listObjects(bucketName);
+            //System.out.println(o);
 
          //catch(IOException ioe) {
             //logger.error("IOException: " + ioe.getMessage() ," " +ioe);
+
         } catch (AmazonServiceException ase) {
             logger.info("Caught an AmazonServiceException from PUT requests, rejected reasons:");
             logger.info("Error Message:    " + ase.getMessage());
@@ -89,7 +102,8 @@ public class S3ServicesImpl implements S3Services{
     }
 
 
-    public File convertFromMultipart(MultipartFile file) throws Exception
+    public File convertFromMultipart(MultipartFile file) throws  Exception
+
     {
         File convFile = new File("tmp/" + file.getOriginalFilename());
         if(!convFile.getParentFile().exists())
