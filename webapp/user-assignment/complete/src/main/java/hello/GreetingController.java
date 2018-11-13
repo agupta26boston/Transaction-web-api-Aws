@@ -17,6 +17,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
 //import netscape.javascript.JSObject;
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.sns.model.Topic;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.JSONPObject;
@@ -340,6 +345,38 @@ public class GreetingController {
             return "You are in the system";
         }
     }
+
+    @RequestMapping(value = "/user/resetpassword", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @ResponseBody
+    public String resetPassword(@RequestBody User details,HttpServletRequest request) throws Exception{
+
+        JsonObject json = new JsonObject();
+
+        User existingUser = userRepository.findUserByEmailId(details.getEmailId());
+
+        if(existingUser != null){
+            AmazonSNS snsClient = AmazonSNSClientBuilder.standard()
+                    .withCredentials(new InstanceProfileCredentialsProvider(false))
+                    .build();
+            List<Topic> topics =  snsClient.listTopics().getTopics();
+
+            for(Topic topic : topics){
+
+                if(topic.getTopicArn().endsWith("noti")){
+                    PublishRequest req = new PublishRequest(topic.getTopicArn(),details.getEmailId());
+                    snsClient.publish(req);
+                    break;
+                }
+            }
+            json.addProperty("message","reset linked sent to your email address");
+        } else {
+
+            json.addProperty("message","username name doesn't exists");
+        }
+
+        return json.toString();
+    }
+
 
     @RequestMapping(value = "/transactions", method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<String> displayTransactions(@RequestBody Transaction transaction) {
