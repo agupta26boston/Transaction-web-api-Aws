@@ -220,9 +220,10 @@
                           "sudo wget https://s3.amazonaws.com/configfileforcloudwatch/amazon-cloudwatch-agent.service",
                           "sudo cp amazon-cloudwatch-agent.service /usr/lib/systemd/system/",
                           "sudo systemctl enable amazon-cloudwatch-agent.service",
-                          "sudo systemctl start amazon-cloudwatch-agent.service",   
+                          "sudo systemctl start amazon-cloudwatch-agent.service",
+                          "sudo systemctl stop amazon-cloudwatch-agent.service",
+                          "sudo systemctl restart amazon-cloudwatch-agent.service",   
                           
-
                           "cd /opt/tomcat",
                           "sudo touch bin/setenv.sh",
                           "sudo chmod 777 bin/setenv.sh",
