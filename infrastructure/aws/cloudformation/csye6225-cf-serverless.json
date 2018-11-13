@@ -1,0 +1,84 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "csye6225 serverless Lambda formation template",
+
+  "Parameters": { 
+  "bucketName": {
+    "Description": "Bucket name",
+    "Type": "String"
+  }
+  },
+   "Resources" : {
+    "LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [
+                "lambda.amazonaws.com"
+              ]
+            },
+            "Action": [
+              "sts:AssumeRole"              
+            ]
+          }]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
+          "arn:aws:iam::aws:policy/AmazonSESFullAccess",
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaDynamoDBExecutionRole",
+          "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+        ],
+        "RoleName": "LambdaExecutionRole"
+      }
+    },
+    "SNSPasswordResetTopic":{
+      "Type" : "AWS::SNS::Topic",
+      "Properties" : {
+        "DisplayName" : "PasswordReset",
+        "TopicName" : "PasswordReset"
+      }
+    },
+    "PasswordReset": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "index.handleRequest",
+        "Role": { "Fn::GetAtt" : ["LambdaExecutionRole", "Arn"] },
+        "Code": {
+          "S3Bucket": {
+                "Ref":"bucketName"
+             },
+          "S3Key": "emailaws-1.0-SNAPSHOT.zip"
+        },
+        "Runtime": "java8",
+        "Timeout": 10,        
+        "TracingConfig": {
+          "Mode": "Active"
+       }
+      }
+    },
+    "LambdaResourcePolicy": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName" : {"Ref":"PasswordReset"},
+        "Principal": "sns.amazonaws.com",
+        "Action": "lambda:InvokeFunction",
+        "SourceArn" : { "Ref" : "SNSPasswordResetTopic" }
+      }
+    }                     
+  },
+  "Outputs": {
+    "PasswordReset": {
+      "Description": "Lambda Function",
+      "Value": { "Ref": "PasswordReset"},
+      "Export" : { "Name" : "PasswordReset" }
+    }
+  }
+
+}

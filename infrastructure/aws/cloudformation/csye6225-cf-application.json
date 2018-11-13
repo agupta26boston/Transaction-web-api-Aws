@@ -157,18 +157,64 @@
                       "\n",
                       [
                           "#!/bin/bash -xe ",
-                          "yum install ruby ntp wget java-1.8.0-openjdk-devel -y",
+                          "yum install python ruby ntp wget java-1.8.0-openjdk-devel -y",
                           "wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
                           "chmod +x ./install \n",
                           "./install auto \n",
                           "service codedeploy-agent start \n",
+                          "sudo wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py \n",
+                          "sudo touch /tmp/cwlogs.conf \n",
+                          "echo [general] >> /tmp/cwlogs.conf \n",
+                          "echo state_file = /var/awslogs/state/agent-state >> /tmp/cwlogs.conf \n",
+                          "echo >> /tmp/cwlogs.conf \n",
+                          "echo [/var/log/messages] >> /tmp/cwlogs.conf \n",
+                          "echo file = /var/log/messages >> /tmp/cwlogs.conf \n",
+                          "echo log_stream_name = messages >> /tmp/cwlogs.conf \n",
+                          "echo log_group_name = stage >> /tmp/cwlogs.conf \n",
+                          "echo initial_position = start_of_file >> /tmp/cwlogs.conf \n",
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "sudo python awslogs-agent-setup.py -n -r",
+                                { "Ref" : "AWS::Region" },
+                                " -c /tmp/cwlogs.conf  \n"
+                              ]
+                            ]
+                          }, 
+                          "sudo cd /etc/systemd/system \n",
+                          {
+                            "Fn::Join": [
+                                "",
+                                ["sudo bash -c 'cat <<EOT > awslogs.service \n",
+                                  "[Unit] \n",
+                                  "Description=Service for CloudWatch Logs agent \n",
+                                  "After=rc-local.service \n",
+
+                                  "[Service] \n",
+                                  "Type=simple \n",
+                                  "Restart=always \n",
+                                  "KillMode=process \n",
+                                  "TimeoutSec=infinity \n",
+                                  "PIDFile=/var/awslogs/state/awslogs.pid \n",
+                                  "ExecStart=/var/awslogs/bin/awslogs-agent-launcher.sh --start --background --pidfile $PIDFILE --user awslogs --chuid awslogs &amp; \n",
+                                  "[Install] \n",
+                                  "WantedBy=multi-user.target \n",
+                                  "EOT' \n"
+                                ]
+                              ]
+                            },
+                          "sudo systemctl start awslogs.service \n",
+                          "sudo systemctl stop awslogs.service \n",
+                          "sudo systemctl restart awslogs.service \n",
+                          "sudo systemctl enable awslogs.service \n",  
                           "systemctl start ntpd",
                           "systemctl enable ntpd",
                           "groupadd tomcat",
                           "useradd -M -s /bin/nologin -g tomcat -d /opt/tomcat tomcat",
                           "cd /tmp",
                           "wget http://apache.mirrors.pair.com/tomcat/tomcat-8/v8.5.34/bin/apache-tomcat-8.5.34.tar.gz",
-                          "mkdir /opt/tomcat",
+                          "#mkdir /opt/tomcat",
                           "tar xvf apache-tomcat-8*tar.gz -C /opt/tomcat --strip-components=1",
                           "cd /opt/tomcat",
                           "chgrp -R tomcat /opt/tomcat",
@@ -203,6 +249,7 @@
                           "systemctl enable tomcat.service",
                           "systemctl start tomcat.service",
 
+
                           "cd /opt/tomcat",
 
                           "sudo touch bin/setenv.sh",
@@ -212,6 +259,7 @@
                           "sudo echo 'export DIALECT=org.hibernate.dialect.MySQL5Dialect' >> bin/setenv.sh",
                           "sudo echo 'export DRIVER=com.mysql.jdbc.Driver' >> bin/setenv.sh",
                           "sudo echo 'export SPRING_PROFILES_ACTIVE=aws' >> bin/setenv.sh",
+
 
                           {
                             "Fn::Join": [
@@ -224,7 +272,9 @@
                                     "Endpoint.Address"
                                   ]
                                 },
+
                                 ":3306/",{"Ref" : "DBName"},"' >> bin/setenv.sh"
+
                               ]
                             ]
                           },
@@ -239,7 +289,9 @@
                             ]
                           },
 
+
                           "systemctl start tomcat.service"
+
 
                       ]
                   ]
