@@ -89,7 +89,7 @@
       "s3:PutObjectAcl"
     ],
     "Effect": "Allow",
-    "Resource": {"Fn::Join":["",["arn:aws:s3:::",{"Ref":"AppBucket"},"/*.jpg"]]}
+    "Resource": {"Fn::Join":["",["arn:aws:s3:::",{"Ref":"AppBucket"},"/*"]]}
     }
     ]
     },
