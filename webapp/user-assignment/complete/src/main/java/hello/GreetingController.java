@@ -342,7 +342,7 @@ public class GreetingController {
     @RequestMapping(value = "/user/register", method = RequestMethod.POST, produces = "application/json")
     public String addUser(@RequestBody User member) {
 
-        statsDClient.incrementCounter("endpoint.user/register.http.post");
+        statsDClient.incrementCounter("endpoint.user.http.post");
 
         System.out.println("" + member.getEmailId());
 
