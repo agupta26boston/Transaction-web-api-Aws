@@ -138,6 +138,8 @@ public class GreetingController {
 
     @RequestMapping(value = "/gt", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getTransaction(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+        statsDClient.incrementCounter("endpoint.gt.http.get");
+
         if (loggedInUser != null) {
             List<Transaction> transactionList = transactionRepository.findTransactionByUserUserId(loggedInUser.getUserId());
 
@@ -165,7 +167,7 @@ public class GreetingController {
     @RequestMapping(value = "/transactions/{id}", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity<String> updateTransaction(@PathVariable("id") String transactionId, HttpServletResponse response, @RequestBody Transaction transaction) throws IOException {
 
-       // statsDClient.incrementCounter("endpoint.time.http.put");
+       statsDClient.incrementCounter("endpoint.transactions/{id}.http.put");
         if (loggedInUser != null) {
 
 
@@ -196,6 +198,8 @@ public class GreetingController {
     @RequestMapping(value = "/transactions/{id}/attachments/{attachmentId}", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity<String> updateAttachment(@PathVariable("id") String transactionId, @PathVariable("attachmentId") String attachmentId, @RequestPart(value = "file") MultipartFile file) throws IOException {
 
+
+        statsDClient.incrementCounter("endpoint.transactions/{id}/attachments/{attachmentId.http.put");
         if (loggedInUser != null) {
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
                 Transaction got = transactionRepository.findTransactionByTransactionId(transactionId);
@@ -257,6 +261,10 @@ public class GreetingController {
 
     @RequestMapping(value = "/transactions/{id}", method = RequestMethod.DELETE, produces = "application/json")
     public ResponseEntity<String> deleteTransaction(@PathVariable("id") String transactionId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        statsDClient.incrementCounter("endpoint.transactions/{id}.http.delete");
+
+
         if (loggedInUser == null) {
             return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 
@@ -279,12 +287,17 @@ public class GreetingController {
     @RequestMapping(value = "/transactions/{id}/attachments/{attachmentid}", method = RequestMethod.DELETE, produces = "application/json")
     public ResponseEntity<String> deleteAttachment(@PathVariable("id") String transactionId, @PathVariable("attachmentid") String attachmentId, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
+        statsDClient.incrementCounter("endpoint.transactions/{id}/attachments/{attachmentid}.http.delete");
 
         if (loggedInUser == null) {
+
+
             return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 
 
     } else if (loggedInUser != null) {
+
+
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
 
                  if (attachementRepository.findAttachmentByAttachmentId(attachmentId)!= null) {
@@ -342,7 +355,7 @@ public class GreetingController {
     @RequestMapping(value = "/user/register", method = RequestMethod.POST, produces = "application/json")
     public String addUser(@RequestBody User member) {
 
-        statsDClient.incrementCounter("endpoint.user.http.post");
+        statsDClient.incrementCounter("endpoint.user/register.http.post");
 
         System.out.println("" + member.getEmailId());
 
@@ -370,7 +383,7 @@ public class GreetingController {
     @ResponseBody
     public String resetPassword(@RequestBody User details,HttpServletRequest request) throws Exception{
 
-        //statsDClient.incrementCounter("endpoint.user.http.get");
+        statsDClient.incrementCounter("endpoint.user/resetpassword.http.post");
 
 
         JsonObject json = new JsonObject();
@@ -403,6 +416,8 @@ public class GreetingController {
 
     @RequestMapping(value = "/transactions", method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<String> displayTransactions(@RequestBody Transaction transaction) {
+
+        statsDClient.incrementCounter("endpoint.transactions.http.post");
        System.out.println(loggedInUser);
         // setting the uuui for the transaction
         if (loggedInUser != null) {
@@ -444,7 +459,12 @@ public class GreetingController {
 
     @RequestMapping(value = "/gt/{id}/attachments", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getAttachment(@PathVariable("id") String transactionId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+
+
+        statsDClient.incrementCounter("endpoint.gt/{id}/attachments.http.get");
         if (loggedInUser != null) {
+
+
             List<Attachment> attachmentList = attachementRepository.findAttachmentByTransactionTransactionId(transactionId);
 
 
@@ -464,6 +484,8 @@ public class GreetingController {
 
     @PostMapping(value = "/transactions/{id}/attachments")
     public ResponseEntity<String> postAttachment(@PathVariable("id") String TransactionId,@RequestPart(value = "file") MultipartFile file) {
+
+        statsDClient.incrementCounter("endpoint.transactions/{id}/attachments.http.post");
         //create a attachment id
         UUID uuid = UUID.randomUUID();
         String attachmentId = uuid.toString();
