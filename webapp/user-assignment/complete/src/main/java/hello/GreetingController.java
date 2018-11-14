@@ -111,6 +111,9 @@ public class GreetingController {
 
     @RequestMapping(value = "/login", method = RequestMethod.GET, produces = "application/json")
     public void userLogin(HttpServletRequest request, HttpServletResponse response) {
+
+        statsDClient.incrementCounter("endpoint.login.http.get");
+
         String authorization = request.getHeader("Authorization");
         if (authorization != null && authorization.startsWith("Basic")) {
             String base64Credentials = authorization.substring("Basic".length()).trim();
@@ -161,7 +164,11 @@ public class GreetingController {
 
     @RequestMapping(value = "/transactions/{id}", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity<String> updateTransaction(@PathVariable("id") String transactionId, HttpServletResponse response, @RequestBody Transaction transaction) throws IOException {
+
+       // statsDClient.incrementCounter("endpoint.time.http.put");
         if (loggedInUser != null) {
+
+
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
                 Transaction got = transactionRepository.findTransactionByTransactionId(transactionId);
                 transaction.setTransactionId(got.getTransactionId());
@@ -335,6 +342,8 @@ public class GreetingController {
     @RequestMapping(value = "/user/register", method = RequestMethod.POST, produces = "application/json")
     public String addUser(@RequestBody User member) {
 
+        statsDClient.incrementCounter("endpoint.user/register.http.post");
+
         System.out.println("" + member.getEmailId());
 
         String email = member.getEmailId();
@@ -360,6 +369,9 @@ public class GreetingController {
     @RequestMapping(value = "/user/resetpassword", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
     public String resetPassword(@RequestBody User details,HttpServletRequest request) throws Exception{
+
+        //statsDClient.incrementCounter("endpoint.user.http.get");
+
 
         JsonObject json = new JsonObject();
 
