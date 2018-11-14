@@ -56,7 +56,7 @@ public class GreetingController {
 
     private final static Logger logger = LoggerFactory.getLogger(GreetingController.class);
 
-    @Autowired
+    @Autowired(required=false)
     private StatsDClient statsDClient;
 
     @Autowired
