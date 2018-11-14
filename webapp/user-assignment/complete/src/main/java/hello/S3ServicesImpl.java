@@ -3,6 +3,7 @@ package hello;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
+import com.amazonaws.services.codecommit.model.InvalidFileModeException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -105,15 +107,28 @@ public class S3ServicesImpl implements S3Services{
     public File convertFromMultipart(MultipartFile file) throws  Exception
 
     {
-        File convFile = new File("tmp/" + file.getOriginalFilename());
-        if(!convFile.getParentFile().exists())
-            convFile.getParentFile().mkdir();
-        if(!convFile.exists())
-            convFile.createNewFile();
-        FileOutputStream fos = new FileOutputStream(convFile);
-        fos.write(file.getBytes());
-        fos.close();
-        return convFile;
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        String[] split= fileName.split("\\.");
+        logger.info(fileName);
+        try {
+            ImageValidator iv = new ImageValidator();
+            if (!iv.validate(fileName))
+                throw new InvalidFileModeException("Invalid File Extension");
+            else {
+                File convFile = new File("tmp/" + file.getOriginalFilename());
+                if (!convFile.getParentFile().exists())
+                    convFile.getParentFile().mkdir();
+                if (!convFile.exists())
+                    convFile.createNewFile();
+                FileOutputStream fos = new FileOutputStream(convFile);
+                fos.write(file.getBytes());
+                fos.close();
+                return convFile;
+            }
+        }
+        catch(IOException ex){
+            throw new Exception("Could not store file " + fileName + ". Please try again!", ex);
+        }
     }
 
 

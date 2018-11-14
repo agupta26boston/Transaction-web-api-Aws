@@ -44,6 +44,24 @@
     }
  },
 
+ "TravisLambdaPolicy":{
+  "Type":"AWS::IAM::ManagedPolicy",
+  "Properties":{
+     "ManagedPolicyName":"Travis-Manage-Lambda-S3",
+     "PolicyDocument":{
+        "Version": "2012-10-17",
+        "Statement":[
+           {
+              "Effect":"Allow",
+              "Resource":"*",
+              "Action":"lambda:*"
+           }
+        ]
+     },
+     "Users":["travis"]
+  }
+},
+
  "CodeDeployEC2ServiceRole":{
   "Type":"AWS::IAM::Role",
   "Properties":{
@@ -120,7 +138,7 @@
                   "s3:PutObjectAcl"
 
                 ],
-      "Resource" :"*"
+      "Resource" : "*"
     }]
     }
   }
@@ -381,36 +399,6 @@
       }
     }
 
-  },
-
-  "CWLogPolicy":{
-    "Type":"AWS::IAM::Policy",
-    "Properties":{
-       "PolicyName":"CW-LogPolicy",
-       "PolicyDocument":{
-          "Version": "2012-10-17",
-          "Statement":[
-             {
-               "Effect": "Allow",
-               "Action": [
-                 "logs:CreateLogGroup",
-                 "logs:CreateLogStream",
-                 "logs:PutLogEvents",
-                 "logs:DescribeLogStreams"
-                 ],
-               "Resource": [
-                 "arn:aws:logs:*:*:*"
-                 ]
-             }
-          ]
-       },
-       "Roles":[
-          {
-             "Ref":"CodeDeployEC2ServiceRole"
-          }
-       ]
-    }
- }
   },
 
   "Outputs": {
