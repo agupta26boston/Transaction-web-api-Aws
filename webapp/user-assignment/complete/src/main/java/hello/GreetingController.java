@@ -70,7 +70,7 @@ public class GreetingController {
     @Autowired
     private AttachementRepository attachementRepository;
 
-    
+
     @Autowired(required = false)
     S3Services s3Services;
 
@@ -399,7 +399,7 @@ public class GreetingController {
 
             for(Topic topic : topics){
 
-                if(topic.getTopicArn().endsWith("noti")){
+                if(topic.getTopicArn().endsWith("Reset")){
                     PublishRequest req = new PublishRequest(topic.getTopicArn(),details.getEmailId());
                     snsClient.publish(req);
                     break;
