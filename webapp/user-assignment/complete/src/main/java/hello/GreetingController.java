@@ -86,6 +86,8 @@ public class GreetingController {
         @RequestMapping("/time")
     public String greeting(HttpServletRequest request, HttpServletResponse response) {
 
+            statsDClient.incrementCounter("endpoint.time.http.get");
+
 
         String check = request.getHeader("Authorization");
 
