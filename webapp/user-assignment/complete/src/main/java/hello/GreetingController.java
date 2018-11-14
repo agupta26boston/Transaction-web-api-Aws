@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import org.slf4j.Logger;
 import java.util.regex.Pattern;
 
 //import netscape.javascript.JSObject;
@@ -27,6 +28,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.timgroup.statsd.StatsDClient;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
@@ -49,6 +52,12 @@ public class GreetingController {
     private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
     private User loggedInUser;
+
+
+    private final static Logger logger = LoggerFactory.getLogger(GreetingController.class);
+
+    @Autowired
+    private StatsDClient statsDClient;
 
     @Autowired
     private GreetingService greetingService;
