@@ -7,6 +7,10 @@
   "bucketName": {
     "Description": "Bucket name",
     "Type": "String"
+  },
+  "domainName": {
+    "Description": "Domain name",
+    "Type": "String"
   }
   },
    "Resources" : {
@@ -65,9 +69,14 @@
              },
           "S3Key": "emailaws-1.0-SNAPSHOT.zip"
         },
+        "Environment":{
+        "Variables":{ 
+          "domainName" : {"Ref": "domainName"}
+        }
+        },
         "Runtime": "java8",
-        "Timeout": 20       
-      }
+        "Timeout": 20            
+      }      
     },
     "LambdaResourcePolicy": {
       "Type": "AWS::Lambda::Permission",
