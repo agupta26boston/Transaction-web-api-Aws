@@ -263,7 +263,8 @@
                           },
 
 
-                          "systemctl start tomcat.service"
+                          "systemctl start tomcat.service",
+                          "yum -y install mysql"
 
 
                       ]
