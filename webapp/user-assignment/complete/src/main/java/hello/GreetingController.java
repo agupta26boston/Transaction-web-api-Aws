@@ -56,7 +56,7 @@ public class GreetingController {
 
     private final static Logger logger = LoggerFactory.getLogger(GreetingController.class);
 
-    @Autowired
+    @Autowired()
     private StatsDClient statsDClient;
 
     @Autowired
@@ -69,6 +69,7 @@ public class GreetingController {
 
     @Autowired
     private AttachementRepository attachementRepository;
+
 
     @Autowired(required = false)
     S3Services s3Services;
@@ -86,7 +87,7 @@ public class GreetingController {
         @RequestMapping("/time")
     public String greeting(HttpServletRequest request, HttpServletResponse response) {
 
-            statsDClient.incrementCounter("endpoint.time.http.get");
+           statsDClient.incrementCounter("endpoint.time.http.get");
 
 
         String check = request.getHeader("Authorization");
@@ -355,7 +356,7 @@ public class GreetingController {
     @RequestMapping(value = "/user/register", method = RequestMethod.POST, produces = "application/json")
     public String addUser(@RequestBody User member) {
 
-        statsDClient.incrementCounter("endpoint.user/register.http.post");
+       statsDClient.incrementCounter("endpoint.user/register.http.post");
 
         System.out.println("" + member.getEmailId());
 
@@ -383,7 +384,7 @@ public class GreetingController {
     @ResponseBody
     public String resetPassword(@RequestBody User details,HttpServletRequest request) throws Exception{
 
-        statsDClient.incrementCounter("endpoint.user/resetpassword.http.post");
+      // statsDClient.incrementCounter("endpoint.user/resetpassword.http.post");
 
 
         JsonObject json = new JsonObject();
@@ -398,7 +399,7 @@ public class GreetingController {
 
             for(Topic topic : topics){
 
-                if(topic.getTopicArn().endsWith("noti")){
+                if(topic.getTopicArn().endsWith("Reset")){
                     PublishRequest req = new PublishRequest(topic.getTopicArn(),details.getEmailId());
                     snsClient.publish(req);
                     break;
