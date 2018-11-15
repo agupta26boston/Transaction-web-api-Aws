@@ -59,6 +59,13 @@
             <artifactId>postgresql</artifactId>
             <version>9.4-1206-jdbc42</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.timgroup/java-statsd-client -->
+        <dependency>
+            <groupId>com.timgroup</groupId>
+            <artifactId>java-statsd-client</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
