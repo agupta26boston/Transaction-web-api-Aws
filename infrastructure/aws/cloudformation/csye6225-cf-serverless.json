@@ -1,0 +1,100 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "csye6225 serverless Lambda formation template",
+
+  "Parameters": { 
+  "bucketName": {
+    "Description": "Bucket name",
+    "Type": "String"
+  },
+  "domainName": {
+    "Description": "Domain name",
+    "Type": "String"
+  }
+  },
+   "Resources" : {
+    "LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [
+                "lambda.amazonaws.com"
+              ]
+            },
+            "Action": [
+              "sts:AssumeRole"              
+            ]
+          }]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
+          "arn:aws:iam::aws:policy/AmazonSESFullAccess",
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaDynamoDBExecutionRole"
+        ],
+        "RoleName": "LambdaExecutionRole"
+      }
+    },
+    "SNSPasswordResetTopic":{
+      "Type" : "AWS::SNS::Topic",
+      "Properties" : {
+        "DisplayName" : "PasswordReset",        
+        "Subscription": [
+            {
+              "Endpoint": {
+                "Fn::GetAtt": [ "PasswordReset", "Arn" ]
+              },
+              "Protocol": "lambda"
+            }
+          ],        
+        "TopicName" : "PasswordReset"
+      }
+    },
+    "PasswordReset": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "MemorySize":512,
+        "Handler": "LogEvent::handleRequest",
+        "Role": { "Fn::GetAtt" : ["LambdaExecutionRole", "Arn"] },
+        "FunctionName": "Serverless-PasswordReset",
+        "Code": {
+          "S3Bucket": {
+                "Ref":"bucketName"
+             },
+          "S3Key": "emailaws-1.0-SNAPSHOT.zip"
+        },
+        "Environment":{
+        "Variables":{ 
+          "domainName" : {"Ref": "domainName"}
+        }
+        },
+        "Runtime": "java8",
+        "Timeout": 20            
+      }      
+    },
+    "LambdaResourcePolicy": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName" : {"Fn::GetAtt": [ "PasswordReset", "Arn" ]},
+        "Principal": "sns.amazonaws.com",
+        "Action": "lambda:InvokeFunction",
+        "SourceArn" : { "Ref" : "SNSPasswordResetTopic" }
+      },
+      "DependsOn": "SNSPasswordResetTopic"
+    }                     
+  },
+  "Outputs": {
+    "PasswordReset": {
+      "Description": "Lambda Function",
+      "Value": { "Ref": "PasswordReset"},
+      "Export" : { "Name" : "PasswordReset" }
+    }
+  }
+
+}
