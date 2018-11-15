@@ -56,7 +56,7 @@ public class GreetingController {
 
     private final static Logger logger = LoggerFactory.getLogger(GreetingController.class);
 
-    @Autowired(required=false)
+    @Autowired()
     private StatsDClient statsDClient;
 
     @Autowired
@@ -87,7 +87,7 @@ public class GreetingController {
         @RequestMapping("/time")
     public String greeting(HttpServletRequest request, HttpServletResponse response) {
 
-           // statsDClient.incrementCounter("endpoint.time.http.get");
+           statsDClient.incrementCounter("endpoint.time.http.get");
 
 
         String check = request.getHeader("Authorization");
@@ -356,7 +356,7 @@ public class GreetingController {
     @RequestMapping(value = "/user/register", method = RequestMethod.POST, produces = "application/json")
     public String addUser(@RequestBody User member) {
 
-       // statsDClient.incrementCounter("endpoint.user/register.http.post");
+       statsDClient.incrementCounter("endpoint.user/register.http.post");
 
         System.out.println("" + member.getEmailId());
 
