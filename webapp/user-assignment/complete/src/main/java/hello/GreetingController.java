@@ -14,14 +14,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import org.slf4j.Logger;
 import java.util.regex.Pattern;
 
 //import netscape.javascript.JSObject;
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.sns.model.Topic;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.timgroup.statsd.StatsDClient;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
@@ -45,6 +53,12 @@ public class GreetingController {
     private final AtomicLong counter = new AtomicLong();
     private User loggedInUser;
 
+
+    private final static Logger logger = LoggerFactory.getLogger(GreetingController.class);
+
+    @Autowired()
+    private StatsDClient statsDClient;
+
     @Autowired
     private GreetingService greetingService;
     @Autowired
@@ -55,6 +69,7 @@ public class GreetingController {
 
     @Autowired
     private AttachementRepository attachementRepository;
+
 
     @Autowired(required = false)
     S3Services s3Services;
@@ -71,6 +86,8 @@ public class GreetingController {
 
         @RequestMapping("/time")
     public String greeting(HttpServletRequest request, HttpServletResponse response) {
+
+           statsDClient.incrementCounter("endpoint.time.http.get");
 
 
         String check = request.getHeader("Authorization");
@@ -95,6 +112,9 @@ public class GreetingController {
 
     @RequestMapping(value = "/login", method = RequestMethod.GET, produces = "application/json")
     public void userLogin(HttpServletRequest request, HttpServletResponse response) {
+
+        statsDClient.incrementCounter("endpoint.login.http.get");
+
         String authorization = request.getHeader("Authorization");
         if (authorization != null && authorization.startsWith("Basic")) {
             String base64Credentials = authorization.substring("Basic".length()).trim();
@@ -119,6 +139,8 @@ public class GreetingController {
 
     @RequestMapping(value = "/gt", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getTransaction(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+        statsDClient.incrementCounter("endpoint.gt.http.get");
+
         if (loggedInUser != null) {
             List<Transaction> transactionList = transactionRepository.findTransactionByUserUserId(loggedInUser.getUserId());
 
@@ -145,7 +167,11 @@ public class GreetingController {
 
     @RequestMapping(value = "/transactions/{id}", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity<String> updateTransaction(@PathVariable("id") String transactionId, HttpServletResponse response, @RequestBody Transaction transaction) throws IOException {
+
+       statsDClient.incrementCounter("endpoint.transactions/{id}.http.put");
         if (loggedInUser != null) {
+
+
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
                 Transaction got = transactionRepository.findTransactionByTransactionId(transactionId);
                 transaction.setTransactionId(got.getTransactionId());
@@ -173,6 +199,8 @@ public class GreetingController {
     @RequestMapping(value = "/transactions/{id}/attachments/{attachmentId}", method = RequestMethod.PUT, produces = "application/json")
     public ResponseEntity<String> updateAttachment(@PathVariable("id") String transactionId, @PathVariable("attachmentId") String attachmentId, @RequestPart(value = "file") MultipartFile file) throws IOException {
 
+
+        statsDClient.incrementCounter("endpoint.transactions/{id}/attachments/{attachmentId.http.put");
         if (loggedInUser != null) {
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
                 Transaction got = transactionRepository.findTransactionByTransactionId(transactionId);
@@ -234,6 +262,10 @@ public class GreetingController {
 
     @RequestMapping(value = "/transactions/{id}", method = RequestMethod.DELETE, produces = "application/json")
     public ResponseEntity<String> deleteTransaction(@PathVariable("id") String transactionId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        statsDClient.incrementCounter("endpoint.transactions/{id}.http.delete");
+
+
         if (loggedInUser == null) {
             return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 
@@ -256,12 +288,17 @@ public class GreetingController {
     @RequestMapping(value = "/transactions/{id}/attachments/{attachmentid}", method = RequestMethod.DELETE, produces = "application/json")
     public ResponseEntity<String> deleteAttachment(@PathVariable("id") String transactionId, @PathVariable("attachmentid") String attachmentId, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
+        statsDClient.incrementCounter("endpoint.transactions/{id}/attachments/{attachmentid}.http.delete");
 
         if (loggedInUser == null) {
+
+
             return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 
 
     } else if (loggedInUser != null) {
+
+
             if (transactionRepository.findTransactionByTransactionId(transactionId) != null) {
 
                  if (attachementRepository.findAttachmentByAttachmentId(attachmentId)!= null) {
@@ -273,9 +310,11 @@ public class GreetingController {
                                  System.out.println(keyname);
                                  s3Services.deleteFile(keyname);
                              } catch (Exception e) {
+
                                  return new ResponseEntity<String>("Cannot Delete File ", HttpStatus.OK);
                              }
                              return new ResponseEntity<String>("File successfully deleted !!!!", HttpStatus.OK);
+
                          }
                      }
 
@@ -317,6 +356,8 @@ public class GreetingController {
     @RequestMapping(value = "/user/register", method = RequestMethod.POST, produces = "application/json")
     public String addUser(@RequestBody User member) {
 
+       statsDClient.incrementCounter("endpoint.user/register.http.post");
+
         System.out.println("" + member.getEmailId());
 
         String email = member.getEmailId();
@@ -339,8 +380,45 @@ public class GreetingController {
         }
     }
 
+    @RequestMapping(value = "/user/resetpassword", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @ResponseBody
+    public String resetPassword(@RequestBody User details,HttpServletRequest request) throws Exception{
+
+      // statsDClient.incrementCounter("endpoint.user/resetpassword.http.post");
+
+
+        JsonObject json = new JsonObject();
+
+        User existingUser = userRepository.findUserByEmailId(details.getEmailId());
+
+        if(existingUser != null){
+            AmazonSNS snsClient = AmazonSNSClientBuilder.standard()
+                    .withCredentials(new InstanceProfileCredentialsProvider(false))
+                    .build();
+            List<Topic> topics =  snsClient.listTopics().getTopics();
+
+            for(Topic topic : topics){
+
+                if(topic.getTopicArn().endsWith("Reset")){
+                    PublishRequest req = new PublishRequest(topic.getTopicArn(),details.getEmailId());
+                    snsClient.publish(req);
+                    break;
+                }
+            }
+            json.addProperty("message","reset linked sent to your email address");
+        } else {
+
+            json.addProperty("message","username name doesn't exists");
+        }
+
+        return json.toString();
+    }
+
+
     @RequestMapping(value = "/transactions", method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity<String> displayTransactions(@RequestBody Transaction transaction) {
+
+        statsDClient.incrementCounter("endpoint.transactions.http.post");
        System.out.println(loggedInUser);
         // setting the uuui for the transaction
         if (loggedInUser != null) {
@@ -382,7 +460,12 @@ public class GreetingController {
 
     @RequestMapping(value = "/gt/{id}/attachments", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> getAttachment(@PathVariable("id") String transactionId, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+
+
+        statsDClient.incrementCounter("endpoint.gt/{id}/attachments.http.get");
         if (loggedInUser != null) {
+
+
             List<Attachment> attachmentList = attachementRepository.findAttachmentByTransactionTransactionId(transactionId);
 
 
@@ -402,11 +485,14 @@ public class GreetingController {
 
     @PostMapping(value = "/transactions/{id}/attachments")
     public ResponseEntity<String> postAttachment(@PathVariable("id") String TransactionId,@RequestPart(value = "file") MultipartFile file) {
+
+        statsDClient.incrementCounter("endpoint.transactions/{id}/attachments.http.post");
         //create a attachment id
         UUID uuid = UUID.randomUUID();
         String attachmentId = uuid.toString();
         Path pathLocal=null;
         String path;
+
 
 
 
@@ -420,6 +506,7 @@ public class GreetingController {
 
                         String keyName = TransactionId + "/" + attachmentId;
                         s3Services.uploadFile(keyName, file);
+
 
 
                        // return new ResponseEntity<String>(keyName, HttpStatus.CREATED);
