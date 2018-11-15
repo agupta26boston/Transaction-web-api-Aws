@@ -44,6 +44,24 @@
     }
  },
 
+ "TravisLambdaPolicy":{
+  "Type":"AWS::IAM::ManagedPolicy",
+  "Properties":{
+     "ManagedPolicyName":"Travis-Manage-Lambda-S3",
+     "PolicyDocument":{
+        "Version": "2012-10-17",
+        "Statement":[
+           {
+              "Effect":"Allow",
+              "Resource":"*",
+              "Action":"lambda:*"
+           }
+        ]
+     },
+     "Users":["travis"]
+  }
+},
+
  "CodeDeployEC2ServiceRole":{
   "Type":"AWS::IAM::Role",
   "Properties":{
@@ -120,7 +138,7 @@
                   "s3:PutObjectAcl"
 
                 ],
-      "Resource" :"*"
+      "Resource" : "*"
     }]
     }
   }
@@ -357,6 +375,7 @@
     "Ec2TagFilters": [{"Key":"Name","Type":"KEY_AND_VALUE","Value":"CloudEC2"}],
     "ServiceRoleArn": { "Fn::GetAtt" : [ "CodeDeployServiceRole", "Arn" ] }
     }
+
   },  
   "CodeDeployApplicationforLamda":{
     "Type" : "AWS::CodeDeploy::Application",
@@ -379,7 +398,7 @@
       "ServiceRoleArn": { "Fn::GetAtt" : [ "CodeDeployServiceRole", "Arn" ] }
       }
     }
-  
+
   },
 
   "Outputs": {
