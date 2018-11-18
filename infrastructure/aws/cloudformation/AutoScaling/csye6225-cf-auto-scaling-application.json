@@ -1,0 +1,647 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "csye6225 application formation template",
+
+   "Parameters": {
+  "DBName": {
+    "Description": "Database Name",
+    "Type": "String"
+  },
+  "DBUser": {
+    "Description": "Database User",
+    "Type": "String"
+  },
+  "DBPassword": {
+    "Description": "Database Password",
+    "Type": "String"
+  },
+  "bucketName": {
+    "Description": "Bucket name",
+    "Type": "String"
+  },
+  "EC2ImageId":{
+      "Description": "EC2 ImageId",
+      "Type": "String"
+    },
+    "EC2InstanceType":{
+      "Description": "EC2 InstanceType",
+      "Type": "String"
+    },
+    "EbsDeviceName" : {
+      "Description": "Ebs DeviceName",
+      "Type": "String"
+    },
+    "EbsVolumeType" : {
+      "Description": "Ebs VolumeType",
+      "Type": "String"
+    },
+    "EbsVolumeSize" : {
+      "Description": "Ebs VolumeSize",
+      "Type": "Number"
+    },
+    "KeyPairName" : {
+      "Description": "Key Pair Name",
+      "Type": "String"
+    },
+    "HostedZoneResource": {
+      "Description": "HostedZoneResource",
+      "Type": "String"
+   }
+  },
+   "Resources" : {
+    "WebServerGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "Cooldown" : "60",
+        "VPCZoneIdentifier" : [{ "Fn::ImportValue" :"PublicSubnet1"}, { "Fn::ImportValue" :"PublicSubnet2"}, { "Fn::ImportValue" :"PublicSubnet3"}],
+        "DesiredCapacity" : "3",
+        "TargetGroupARNs" : [ { "Ref" : "LoadBalancerTargetGroup" } ],
+        "LaunchConfigurationName" : { "Ref" : "asg_launch_config" },
+        "MinSize" : "3",
+        "MaxSize" : "10",
+        "Tags" : [ {
+           "Key" : "EC2Name1",
+           "Value" : "CloudEC2-1",
+           "PropagateAtLaunch" : "true"
+        }, {
+           "Key" : "EC2Name2",
+           "Value" : "CloudEC2-2",
+           "PropagateAtLaunch" : "true"
+        }, {
+           "Key" : "EC2Name3",
+           "Value" : "CloudEC2-3",
+           "PropagateAtLaunch" : "true"
+        } , {
+           "Key" : "EC2Name4",
+           "Value" : "CloudEC2-4",
+           "PropagateAtLaunch" : "false"
+        } , {
+           "Key" : "EC2Name5",
+           "Value" : "CloudEC2-5",
+           "PropagateAtLaunch" : "false"
+        } , {
+           "Key" : "EC2Name6",
+           "Value" : "CloudEC2-6",
+           "PropagateAtLaunch" : "false"
+        } , {
+           "Key" : "EC2Name7",
+           "Value" : "CloudEC2-7",
+           "PropagateAtLaunch" : "false"
+        } , {
+            "Key" : "EC2Name8",
+            "Value" : "CloudEC2-8",
+            "PropagateAtLaunch" : "false"
+          } , {
+            "Key" : "EC2Name9",
+            "Value" : "CloudEC2-9",
+            "PropagateAtLaunch" : "false"
+        } , {
+            "Key" : "EC2Name10",
+            "Value" : "CloudEC2-10",
+            "PropagateAtLaunch" : "false"
+        } ]
+      }
+    },
+     
+    "asg_launch_config": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Properties": {
+        "ImageId": { "Ref": "EC2ImageId" },
+        "KeyName" : { "Ref": "KeyPairName" },
+        "IamInstanceProfile" :{"Fn::ImportValue" : "EC2InstanceProfile"},
+        "InstanceType": { "Ref": "EC2InstanceType" },           
+        "SecurityGroupIds" : [{"Fn::ImportValue" : {"Fn::Sub" : "EC2GroupName"}}],  
+        "AssociatePublicIpAddress": false,         
+        "BlockDeviceMappings": [
+            {
+                "DeviceName" : { "Ref": "EbsDeviceName"},
+                "Ebs" : {
+                    "VolumeType" : { "Ref": "EbsVolumeType"},
+                    "VolumeSize" :{ "Ref": "EbsVolumeSize"},
+                    "DeleteOnTermination" : true
+                }
+            }
+        ],
+            "UserData": {
+              "Fn::Base64": {
+                  "Fn::Join": [
+                      "\n",
+                      [
+                          "#!/bin/bash -xe ",
+                          "yum install python ruby ntp wget java-1.8.0-openjdk-devel -y",
+                          "wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
+                          "chmod +x ./install \n",
+                          "./install auto \n",
+                          "service codedeploy-agent start \n",                                                                                                                              
+                          "systemctl start ntpd",
+                          "systemctl enable ntpd",
+                          "groupadd tomcat",
+                          "useradd -M -s /bin/nologin -g tomcat -d /opt/tomcat tomcat",
+                          "cd /tmp",
+                          "wget http://apache.mirrors.pair.com/tomcat/tomcat-8/v8.5.34/bin/apache-tomcat-8.5.34.tar.gz",
+                          "mkdir /opt/tomcat",
+                          "tar xvf apache-tomcat-8*tar.gz -C /opt/tomcat --strip-components=1",
+                          "cd /opt/tomcat",
+                          "chgrp -R tomcat /opt/tomcat",
+                          "chmod -R g+r conf",
+                          "chmod g+x conf",
+                          "chown -R tomcat webapps/ work/ temp/ logs/",
+                          "cd /usr/lib/systemd/system",
+                          "touch tomcat.service",
+                          "echo '[Unit]' > tomcat.service",
+                          "echo 'Description=Apache Tomcat Web Application Container' >> tomcat.service",
+                          "echo 'After=syslog.target network.target' >> tomcat.service",
+                          "echo '[Service]' >> tomcat.service",
+                          "echo 'Type=forking' >> tomcat.service",
+                          "echo 'Environment=JAVA_HOME=/usr/lib/jvm/jre' >> tomcat.service",
+                          "echo 'Environment=CATALINA_PID=/opt/tomcat/temp/tomcat.pid' >> tomcat.service",
+                          "echo 'Environment=CATALINA_HOME=/opt/tomcat' >> tomcat.service",
+                          "echo 'Environment=CATALINA_BASE=/opt/tomcat' >> tomcat.service",
+                          "echo 'Environment=\"CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC\"' >> tomcat.service",
+                          "echo 'Environment=\"JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom\"' >> tomcat.service",
+                          "echo 'ExecStart=/opt/tomcat/bin/startup.sh' >> tomcat.service",
+                          "echo 'ExecStop=/bin/kill -15 $MAINPID' >> tomcat.service",
+                          "echo 'User=tomcat' >> tomcat.service",
+                          "echo 'Group=tomcat' >> tomcat.service",
+                          "echo 'UMask=0007' >> tomcat.service",
+                          "echo 'RestartSec=10' >> tomcat.service",
+                          "echo 'Restart=always' >> tomcat.service",
+                          "echo '[Install]' >> tomcat.service",
+                          "echo 'WantedBy=multi-user.target' >> tomcat.service",
+                          "systemctl daemon-reload",
+                          "#systemctl start cloudwatch.service",
+                          "#systemctl enable cloudwatch.service",
+                          "systemctl enable tomcat.service",
+                          "systemctl start tomcat.service",
+
+                          "sudo touch /opt/cloudwatch-config.json",
+                          "cd ../../../../..",
+                          "cd /opt",
+                          "#sudo echo '{' > cloudwatch-config.json",
+                          "sudo echo '{\"agent\":{' >> cloudwatch-config.json",
+                          "sudo echo '\"metrics_collection_interval\":10,' >> cloudwatch-config.json",
+                          "sudo echo '\"logfile\": \"/var/logs/amazon-cloudwatch-agent.log\"' >> cloudwatch-config.json",
+                          "sudo echo '},' >> cloudwatch-config.json",
+                          "sudo echo '\"logs\": {\"logs_collected\": {\"files\": {\"collect_list\": [{\"file_path\": \"/opt/tomcat/logs/catalina.out\",\"log_group_name\": \"csye6225_fall2018\",\"log_stream_name\": \"webapp\"}]}},\"log_stream_name\": \"cloudwatch_log_stream\"}, \"metrics\":{ \"metrics_collected\":{ \"statsd\":{ \"service_address\":\":8125\", \"metrics_collection_interval\":10, \"metrics_aggregation_interval\":0 }}}}' >> cloudwatch-config.json",
+                          "cd ..",
+                          "sudo wget https://s3.amazonaws.com/amazoncloudwatch-agent/centos/amd64/latest/amazon-cloudwatch-agent.rpm",
+                          "sudo rpm -U ./amazon-cloudwatch-agent.rpm",
+                          "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/cloudwatch-config.json -s",     
+                          "cd ../../../../..",
+                          "sudo wget https://s3.amazonaws.com/configfileforcloudwatch/amazon-cloudwatch-agent.service",
+                          "sudo cp amazon-cloudwatch-agent.service /usr/lib/systemd/system/",
+                          "sudo systemctl enable amazon-cloudwatch-agent.service",
+                          "sudo systemctl start amazon-cloudwatch-agent.service",
+                          "sudo systemctl stop amazon-cloudwatch-agent.service",
+                          "sudo systemctl restart amazon-cloudwatch-agent.service",   
+                          
+                          "cd /opt/tomcat",
+                          "sudo touch bin/setenv.sh",
+                          "sudo chmod 777 bin/setenv.sh",
+                          { "Fn::Join":["",["sudo echo 'export USERNAME=",{"Ref" : "DBUser"}, "'>> bin/setenv.sh"]]},
+                          { "Fn::Join":["",["sudo echo 'export PASSWORD=",{"Ref" : "DBPassword"}, "'>> bin/setenv.sh"]]},       
+                          "sudo echo 'export DIALECT=org.hibernate.dialect.MySQL5Dialect' >> bin/setenv.sh",
+                          "sudo echo 'export DRIVER=com.mysql.jdbc.Driver' >> bin/setenv.sh",
+                          "sudo echo 'export SPRING_PROFILES_ACTIVE=aws' >> bin/setenv.sh",
+
+
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "sudo echo 'export URL=jdbc:mysql://",
+                                {
+                                  "Fn::GetAtt": [
+                                    "NVNCloudRDSDB",
+                                    "Endpoint.Address"
+                                  ]
+                                },
+
+                                ":3306/",{"Ref" : "DBName"},"' >> bin/setenv.sh"
+
+                              ]
+                            ]
+                          },
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "sudo echo 'export BUCKETNAME=",
+                                {"Ref" : "bucketName"},
+                                "' >> bin/setenv.sh"
+                              ]
+                            ]
+                          },
+
+
+                          "systemctl start tomcat.service",
+                          "yum -y install mysql"
+
+
+                      ]
+                  ]
+              }
+            }
+          }
+    },
+
+    "WebServerLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+          "RetentionInDays": 7
+      }
+    },
+    
+    "WebServerScaleUpPolicy": {
+    "Type": "AWS::AutoScaling::ScalingPolicy",
+    "Properties": {
+      "AdjustmentType": "ChangeInCapacity",
+      "AutoScalingGroupName": {
+        "Ref": "WebServerGroup"
+      },
+      "Cooldown": "60",
+      "ScalingAdjustment": "1"
+    }
+  },
+
+    "WebServerScaleDownPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "WebServerGroup"
+        },
+        "Cooldown": "60",
+        "ScalingAdjustment": "-1"
+      }
+    },
+
+    "CPUAlarmHigh": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "90",
+        "AlarmActions": [
+          {
+            "Ref": "WebServerScaleUpPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "WebServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    
+    "CPUAlarmLow": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [
+          {
+            "Ref": "WebServerScaleDownPolicy"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "WebServerGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+
+    "LoadBalancer" : {
+      "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "Properties" : {
+        "Name" : "Cloud-LoadBalancer",
+        "SecurityGroups" : [ { "Fn::ImportValue" : "EC2GroupName"} ],
+        "Subnets" : [ { "Fn::ImportValue" :"PublicSubnet1"}, { "Fn::ImportValue" :"PublicSubnet2"}, { "Fn::ImportValue" :"PublicSubnet3"} ]
+      }
+    },
+
+    "LoadBalancerListner" : {
+      "Type" : "AWS::ElasticLoadBalancingV2::Listener",
+      "Properties" : {
+        "DefaultActions" : [{
+          "Type" : "forward",
+          "TargetGroupArn" : { "Ref" : "LoadBalancerTargetGroup" }
+        }],
+        "LoadBalancerArn" : { "Ref" : "LoadBalancer" },
+        "Port" : 443,
+        "Protocol" : "HTTPS",
+        "Certificates" : [
+          { "CertificateArn" : { "Ref" : "SSLCertificate" } }
+        ]
+      }
+    },
+    "LoadBalancerTargetGroup" : {
+      "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "Properties" : {
+        "HealthCheckIntervalSeconds" : 30,
+        "HealthCheckTimeoutSeconds" : 5,
+        "HealthyThresholdCount" : 3,
+        "Port" : 8080,
+        "Protocol" : "HTTP",
+        "UnhealthyThresholdCount" : 5,
+        "TargetGroupAttributes": [{
+              "Value": "true",
+              "Key": "stickiness.enabled"
+          },
+          {
+              "Value": "600",
+              "Key": "deregistration_delay.timeout_seconds"
+          },
+          {
+              "Value": "lb_cookie",
+              "Key": "stickiness.type"
+          },
+          {
+              "Value": "600",
+              "Key": "stickiness.lb_cookie.duration_seconds"
+          }],
+        "VpcId" : { "Fn::ImportValue" : "VpcId"}
+      }
+    },
+    "SSLCertificate" : {
+      "Type" : "AWS::CertificateManager::Certificate",
+      "Properties" : {
+        "DomainName" : {"Ref" : "HostedZoneResource"}
+      }
+    },
+
+    "CodeDeployServiceRole": {
+      "Type":"AWS::IAM::Role",
+      "Properties":{
+        "ManagedPolicyArns":[
+            "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
+        ],
+        "AssumeRolePolicyDocument":{
+            "Statement":[
+              {
+                  "Effect":"Allow",
+                  "Principal":{
+                    "Service":[
+                        "codedeploy.us-east-1.amazonaws.com",
+                        "application-autoscaling.amazonaws.com"
+                    ]
+                  },
+                  "Action":[
+                    "sts:AssumeRole"
+                  ]
+              }
+            ]
+        },
+        "Path":"/",
+        "RoleName" : "CodeDeployServiceRole"
+      }
+  },       
+       
+  
+  "TravisCodeDeployPolicy":{
+    "Type":"AWS::IAM::ManagedPolicy",
+    "Properties":{
+       "ManagedPolicyName":"Travis-Code-Deploy",
+       "PolicyDocument":{
+          "Version": "2012-10-17",
+          "Statement":[
+             {
+                "Effect":"Allow",
+                "Action":[
+                   "codedeploy:RegisterApplicationRevision",
+                   "codedeploy:GetApplicationRevision"
+                ],
+                "Resource":[
+                  {
+                     "Fn::Join":[
+                        "",
+                        [
+                           "arn:aws:codedeploy:",
+                           {
+                              "Ref":"AWS::Region"
+                           },
+                           ":",
+                           {
+                             "Ref":"AWS::AccountId"
+                           },
+                           ":application:",
+                           {
+                             "Ref":"CodeDeployApplication"
+                           }
+                        ]
+                     ]
+                  }
+                ]
+             },
+             {
+                "Effect":"Allow",
+                "Action":[
+                   "codedeploy:CreateDeployment",
+                   "codedeploy:GetDeployment"
+                ],
+                "Resource":[
+                  {
+                    "Fn::Join":[
+                       "",
+                       [
+                          "arn:aws:codedeploy:",
+                          {
+                             "Ref":"AWS::Region"
+                          },
+                          ":",
+                          {
+                            "Ref":"AWS::AccountId"
+                          },
+                          ":deploymentgroup:",
+                          {
+                            "Ref": "CodeDeployApplication"
+                          },
+                          "/*"
+                       ]
+                    ]
+                  },
+                  {
+                   "Fn::Join":[
+                      "",
+                      [
+                         "arn:aws:codedeploy:",
+                         {
+                            "Ref":"AWS::Region"
+                         },
+                         ":",
+                         {
+                           "Ref":"AWS::AccountId"
+                         },
+                         ":deploymentconfig:CodeDeployDefault.OneAtATime"
+                      ]
+                   ]
+                },
+                {
+                   "Fn::Join":[
+                      "",
+                      [
+                         "arn:aws:codedeploy:",
+                         {
+                            "Ref":"AWS::Region"
+                         },
+                         ":",
+                         {
+                           "Ref":"AWS::AccountId"
+                         },
+                         ":deploymentconfig:CodeDeployDefault.HalfAtATime"
+                      ]
+                   ]
+                },
+                {
+                   "Fn::Join":[
+                      "",
+                      [
+                         "arn:aws:codedeploy:",
+                         {
+                            "Ref":"AWS::Region"
+                         },
+                         ":",
+                         {
+                           "Ref":"AWS::AccountId"
+                         },
+                         ":deploymentconfig:CodeDeployDefault.AllAtOnce"
+                      ]
+                   ]
+                }
+               ]
+             },
+             {
+                "Effect":"Allow",
+                "Action":[
+                   "codedeploy:GetDeploymentConfig"
+                ],
+                "Resource":[
+                  {
+                     "Fn::Join":[
+                        "",
+                        [
+                           "arn:aws:codedeploy:",
+                           {
+                              "Ref":"AWS::Region"
+                           },
+                           ":",
+                           {
+                             "Ref":"AWS::AccountId"
+                           },
+                           ":deploymentconfig:CodeDeployDefault.OneAtATime"
+                        ]
+                     ]
+                  },
+                  {
+                     "Fn::Join":[
+                        "",
+                        [
+                           "arn:aws:codedeploy:",
+                           {
+                              "Ref":"AWS::Region"
+                           },
+                           ":",
+                           {
+                             "Ref":"AWS::AccountId"
+                           },
+                           ":deploymentconfig:CodeDeployDefault.HalfAtATime"
+                        ]
+                     ]
+                  },
+                  {
+                     "Fn::Join":[
+                        "",
+                        [
+                           "arn:aws:codedeploy:",
+                           {
+                              "Ref":"AWS::Region"
+                           },
+                           ":",
+                           {
+                             "Ref":"AWS::AccountId"
+                           },
+                           ":deploymentconfig:CodeDeployDefault.AllAtOnce"
+                        ]
+                     ]
+                  }
+                ]
+             }
+          ]
+       },
+       "Users":["travis"]
+    }
+  },
+  
+  "CodeDeployApplication": {
+    "Type": "AWS::CodeDeploy::Application",
+    "Properties": {
+      "ComputePlatform": "Server",
+      "ApplicationName": "codedeploy-app"
+    }
+  },
+  
+  "CodeDeploymentGroup":{
+    "Type" : "AWS::CodeDeploy::DeploymentGroup",
+    "Properties": {
+      "DeploymentGroupName": "CloudDeployGroup",
+      "ApplicationName": {"Ref" :"CodeDeployApplication"},
+      "AutoScalingGroups" :[{"Ref": "WebServerGroup"}],
+      "DeploymentConfigName" : "CodeDeployDefault.OneAtATime",
+      "Ec2TagFilters": [
+    {"Key":"EC2Name1","Type":"KEY_AND_VALUE","Value":"CloudEC2-1"},
+    {"Key":"EC2Name2","Type":"KEY_AND_VALUE","Value":"CloudEC2-2"},
+    {"Key":"EC2Name3","Type":"KEY_AND_VALUE","Value":"CloudEC2-3"},
+    {"Key":"EC2Name4","Type":"KEY_AND_VALUE","Value":"CloudEC2-4"},
+    {"Key":"EC2Name5","Type":"KEY_AND_VALUE","Value":"CloudEC2-5"},
+    {"Key":"EC2Name6","Type":"KEY_AND_VALUE","Value":"CloudEC2-6"},
+    {"Key":"EC2Name7","Type":"KEY_AND_VALUE","Value":"CloudEC2-7"},
+    {"Key":"EC2Name8","Type":"KEY_AND_VALUE","Value":"CloudEC2-8"},
+    {"Key":"EC2Name9","Type":"KEY_AND_VALUE","Value":"CloudEC2-9"},
+    {"Key":"EC2Name10","Type":"KEY_AND_VALUE","Value":"CloudEC2-110"}
+    ],
+      "ServiceRoleArn": { "Fn::GetAtt" : [ "CodeDeployServiceRole", "Arn" ] }
+      }
+    },
+
+    "myDNSRecord" : {
+      "Type" : "AWS::Route53::RecordSet",
+      "Properties" : {
+        "HostedZoneName" : {
+          "Fn::Join" : [ "", [
+            {"Ref" : "HostedZoneResource"}, "."] ]
+            },
+        "Comment" : "DNS name for my instance.",
+        "Name" : {
+          "Fn::Join" : [ "", [
+            {"Ref" : "HostedZoneResource"}, "."] ]
+            },
+        "Type" : "A",
+        "AliasTarget" : {
+          "HostedZoneId" :{ "Fn::GetAtt" : ["LoadBalancer","CanonicalHostedZoneID"] },
+          "DNSName" : { "Fn::GetAtt" : ["LoadBalancer","DNSName"] }
+        }
+      },
+      "DependsOn" : ["LoadBalancer", "LoadBalancerListner"]
+    }
+  }
+}
