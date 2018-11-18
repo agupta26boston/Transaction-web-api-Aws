@@ -1,20 +1,10 @@
 #!/bin/bash
 StackName=$1
-DomainName=$2
+
 if [ -z "$StackName" ]; then
   echo "ERROR: Stackname expected....."
   exit 1
 fi
-if [ -z "$DomainName" ]; then
-  echo "No domain name provided. Script exiting.."
-  exit 1
-fi
-
-DomainName=$DomainName.csye6225.com
-
-
-echo "Cleaning s3 bucket $DomainName"
-aws s3 rm s3://$DomainName --recursive
 
 echo "Terminating $StackName network setup"
 aws cloudformation delete-stack --stack-name $StackName

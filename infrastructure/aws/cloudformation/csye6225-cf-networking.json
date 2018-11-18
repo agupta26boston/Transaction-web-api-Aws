@@ -241,12 +241,7 @@
         "Description": "Name of DBSubnetGroup",
         "Value": { "Ref": "NVNDBSubnetGroup"},
         "Export" : { "Name" : "DBSubnetGroupName" }
-      },
-      "NVNCloudSecurityGroupName": {
-        "Description": "ID of NVNCloudSecurityGroup",
-        "Value": { "Fn::GetAtt": ["NVNCloudSecurityGroup","GroupId"]},
-        "Export" : { "Name" : {"Fn::Sub": "EC2GroupName" }}
-      },
+      },      
       "PublicSubnet1":{
         "Description": "Public subnet for EC2",
         "Value": { "Ref": "PublicSubnet1"},

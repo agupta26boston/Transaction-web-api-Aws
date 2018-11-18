@@ -58,7 +58,7 @@ until [ "$stackstatus" = "CREATE_COMPLETE" ]; do
       echo "$@ creation failed! "
       aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType=='$@' && ResourceStatus==`CREATE_FAILED`)]'
       echo "deleting stack..... "
-      bash ./csye6225-cf-auto-scaling-application.sh $StackName $DomainName
+      bash ./csye6225-aws-cf-terminate-auto-scaling-application-stack.sh $StackName
       break
     fi
   }
@@ -77,6 +77,8 @@ myresources '`AWS::IAM::ManagedPolicy`'
 myresources '`AWS::CodeDeploy::Application`'
 myresources '`AWS::CodeDeploy::DeploymentGroup`'
 myresources '`AWS::Route53::RecordSet`'
+myresources '`AWS::EC2::SecurityGroup`'
+
 
   stackstatus=`aws cloudformation describe-stacks --stack-name $StackName --query 'Stacks[*][StackStatus]' --output text`
   sleep 20
