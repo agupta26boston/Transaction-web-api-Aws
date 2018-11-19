@@ -66,7 +66,7 @@
         "VPCZoneIdentifier" : [{ "Fn::ImportValue" :"PublicSubnet1"}, { "Fn::ImportValue" :"PublicSubnet2"}, { "Fn::ImportValue" :"PublicSubnet3"}],
         "DesiredCapacity" : "3",
         "TargetGroupARNs" : [ { "Ref" : "LoadBalancerTargetGroup" } ],
-        "LaunchConfigurationName" : { "Ref" : "asg_launch_config" },
+        "LaunchConfigurationName" : { "Ref" : "ASGLaunchConfig" },
         "MinSize" : "3",
         "MaxSize" : "10",
         "Tags" : [ {
@@ -113,7 +113,7 @@
       }
     },
      
-    "asg_launch_config": {
+    "ASGLaunchConfig": {
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
         "ImageId": { "Ref": "EC2ImageId" },
@@ -221,10 +221,7 @@
                               [
                                 "sudo echo 'export URL=jdbc:mysql://",
                                 {
-                                  "Fn::GetAtt": [
-                                    "NVNCloudRDSDB",
-                                    "Endpoint.Address"
-                                  ]
+                                  "Fn::ImportValue" : "NVNRDSEndpoint"
                                 },
 
                                 ":3306/",{"Ref" : "DBName"},"' >> bin/setenv.sh"
@@ -289,13 +286,13 @@
     "CPUAlarmHigh": {
       "Type": "AWS::CloudWatch::Alarm",
       "Properties": {
-        "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+        "AlarmDescription": "Scale-up if CPU > 10% for 2 minutes",
         "MetricName": "CPUUtilization",
         "Namespace": "AWS/EC2",
         "Statistic": "Average",
-        "Period": "300",
+        "Period": "120",
         "EvaluationPeriods": "2",
-        "Threshold": "90",
+        "Threshold": "10",
         "AlarmActions": [
           {
             "Ref": "WebServerScaleUpPolicy"
@@ -316,13 +313,13 @@
     "CPUAlarmLow": {
       "Type": "AWS::CloudWatch::Alarm",
       "Properties": {
-        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "AlarmDescription": "Scale-down if CPU < 8% for 2 minutes",
         "MetricName": "CPUUtilization",
         "Namespace": "AWS/EC2",
         "Statistic": "Average",
-        "Period": "300",
+        "Period": "120",
         "EvaluationPeriods": "2",
-        "Threshold": "70",
+        "Threshold": "8",
         "AlarmActions": [
           {
             "Ref": "WebServerScaleDownPolicy"
@@ -396,7 +393,8 @@
     "SSLCertificate" : {
       "Type" : "AWS::CertificateManager::Certificate",
       "Properties" : {
-        "DomainName" : {"Ref" : "HostedZoneResource"}
+        "DomainName" : {"Ref" : "HostedZoneResource"},
+        "ValidationMethod" : "DNS"
       }
     },
 
@@ -649,7 +647,7 @@
           "ToPort" : "80",
           "SourceSecurityGroupId" : {"Fn::Select" : [0, {"Fn::GetAtt" : ["LoadBalancer", "SecurityGroups"]}]}
         } ],
-        "VpcId" : { "Ref" : "VpcId" }
+        "VpcId" : {"Fn::ImportValue" : "VpcId"}
       }
     },
 

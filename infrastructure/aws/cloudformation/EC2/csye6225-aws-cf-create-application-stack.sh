@@ -35,7 +35,7 @@ createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
     ParameterKey=DBAllocatedStorage,ParameterValue=100 \
     ParameterKey=DBEngineVersion,ParameterValue=5.6.37 \
     ParameterKey=DBInstanceClass,ParameterValue=db.t2.medium \
-    ParameterKey=DBInstanceIdentifier,ParameterValue=csye6225-fall2018 \    
+    ParameterKey=DBInstanceIdentifier,ParameterValue=csye6225-fall2018 \
     ParameterKey=bucketName,ParameterValue=$Bucket`
   
    

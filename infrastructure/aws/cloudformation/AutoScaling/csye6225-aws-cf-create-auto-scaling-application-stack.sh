@@ -37,8 +37,9 @@ createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
     ParameterKey=DBUser,ParameterValue=csye6225master \
     ParameterKey=DBPassword,ParameterValue=csye6225password \
     ParameterKey=KeyPairName,ParameterValue=csyekeypair \
-    ParameterKey=bucketName,ParameterValue=$Bucket
-    ParameterKey=HostedZoneResource,ParameterValue=$DomainName \`
+    ParameterKey=bucketName,ParameterValue=$Bucket \
+    ParameterKey=HostedZoneResource,ParameterValue=$DomainName \
+  --capabilities CAPABILITY_NAMED_IAM`
   
    
 
