@@ -611,7 +611,7 @@
   "CodeDeploymentGroup":{
     "Type" : "AWS::CodeDeploy::DeploymentGroup",
     "Properties": {
-      "DeploymentGroupName": "CloudDeployGroup",
+      "DeploymentGroupName": "CodeDeploymentGroup",
       "ApplicationName": {"Ref" :"CodeDeployApplication"},
       "AutoScalingGroups" :[{"Ref": "WebServerGroup"}],
       "DeploymentConfigName" : "CodeDeployDefault.OneAtATime",
