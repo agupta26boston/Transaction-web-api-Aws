@@ -625,7 +625,7 @@
     {"Key":"EC2Name7","Type":"KEY_AND_VALUE","Value":"CloudEC2-7"},
     {"Key":"EC2Name8","Type":"KEY_AND_VALUE","Value":"CloudEC2-8"},
     {"Key":"EC2Name9","Type":"KEY_AND_VALUE","Value":"CloudEC2-9"},
-    {"Key":"EC2Name10","Type":"KEY_AND_VALUE","Value":"CloudEC2-110"}
+    {"Key":"EC2Name10","Type":"KEY_AND_VALUE","Value":"CloudEC2-10"}
     ],
       "ServiceRoleArn": { "Fn::GetAtt" : [ "CodeDeployServiceRole", "Arn" ] }
       }
