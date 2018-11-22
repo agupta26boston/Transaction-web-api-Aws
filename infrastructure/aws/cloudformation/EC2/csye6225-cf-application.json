@@ -1,0 +1,114 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "csye6225 application formation template",
+
+   "Parameters": {
+  "DBName": {
+    "Description": "Database Name",
+    "Type": "String"
+  },
+  "DBUser": {
+    "Description": "Database User",
+    "Type": "String"
+  },
+  "DBPassword": {
+    "Description": "Database Password",
+    "Type": "String"
+  },
+  "bucketName": {
+    "Description": "Bucket name",
+    "Type": "String"
+  },
+  "DBEngine": {
+    "Description": "DB Engine",
+    "Type": "String"
+  },
+  "DBAllocatedStorage": {
+    "Description": "DB AllocatedStorage",
+    "Type": "String"
+  },
+  "DBEngineVersion": {
+    "Description": "DB EngineVersion",
+    "Type": "String"
+  },
+  "DBInstanceClass": {
+    "Description": "DB InstanceClass",
+    "Type": "String"
+  },
+  "DBInstanceIdentifier": {
+    "Description": "DBInstanceIdentifier",
+    "Type": "String"
+  }
+  },
+   "Resources" : {
+
+    "NVNDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+      "AttributeDefinitions": [
+        {
+          "AttributeName": "Id",
+          "AttributeType": "S"
+        }
+      ],
+      "KeySchema": [
+        {
+          "AttributeName": "Id",
+          "KeyType": "HASH"
+        }
+      ],
+      "ProvisionedThroughput": {
+        "ReadCapacityUnits": "5",
+        "WriteCapacityUnits": "5"
+      },
+      "TimeToLiveSpecification": {
+        "AttributeName": "TimeToLive",
+        "Enabled": "TRUE"
+      },
+      "TableName": "csye6225"
+          }
+    },
+
+    "NVNCloudS3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": { "Ref": "bucketName" },
+        "AccessControl": "Private"
+      }
+    },    
+
+
+    "NVNCloudRDSDB": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine": { "Ref": "DBEngine"},
+        "AllocatedStorage": { "Ref": "DBAllocatedStorage"},
+        "EngineVersion": { "Ref": "DBEngineVersion"},
+        "DBInstanceClass": { "Ref": "DBInstanceClass"},
+        "MultiAZ": "false",
+        "DBInstanceIdentifier": { "Ref": "DBInstanceIdentifier"},
+        "MasterUsername": { "Ref": "DBUser" },
+        "MasterUserPassword": { "Ref": "DBPassword" },
+        "PubliclyAccessible": "false",
+        "DBName": { "Ref": "DBName" },
+        "VPCSecurityGroups": [{ "Fn::ImportValue" : "RDSGroupName" }],
+        "DBSubnetGroupName": { "Fn::ImportValue" : "DBSubnetGroupName" }
+      },
+      "DeletionPolicy": "Delete"
+    }     
+  },
+  "Outputs": {
+    "WebAppS3BucketName": {
+      "Description": "Web Application S3 Bucket Name",
+      "Value": { "Ref": "NVNCloudS3Bucket"},
+      "Export" : { "Name" : "WebAppS3BucketName" }
+    },
+    "NVNRDSEndpoint": {
+      "Description": "RDS Database",
+      "Value": { "Fn::GetAtt" : ["NVNCloudRDSDB", "Endpoint.Address"]},
+      "Export" : { "Name" : "NVNRDSEndpoint" }
+    }
+  }
+
+}

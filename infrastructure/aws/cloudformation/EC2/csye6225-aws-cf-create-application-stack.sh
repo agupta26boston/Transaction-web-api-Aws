@@ -28,12 +28,7 @@ echo "$DomainName is my s3 bucket....."
 
 createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
 	--template-body file://csye6225-cf-application.json \
-	--parameters ParameterKey=EC2ImageId,ParameterValue=ami-9887c6e7 \
-    ParameterKey=EC2InstanceType,ParameterValue=t2.micro \
-    ParameterKey=EbsDeviceName,ParameterValue=/dev/sda1 \
-    ParameterKey=EbsVolumeType,ParameterValue=gp2 \
-    ParameterKey=EbsVolumeSize,ParameterValue=20\
-    ParameterKey=DBName,ParameterValue=csye6225 \
+	--parameters ParameterKey=DBName,ParameterValue=csye6225 \
     ParameterKey=DBUser,ParameterValue=csye6225master \
     ParameterKey=DBPassword,ParameterValue=csye6225password \
     ParameterKey=DBEngine,ParameterValue=MySQL \
@@ -41,9 +36,7 @@ createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
     ParameterKey=DBEngineVersion,ParameterValue=5.6.37 \
     ParameterKey=DBInstanceClass,ParameterValue=db.t2.medium \
     ParameterKey=DBInstanceIdentifier,ParameterValue=csye6225-fall2018 \
-    ParameterKey=KeyPairName,ParameterValue=csyekeypair \
-    ParameterKey=bucketName,ParameterValue=$Bucket \
-    ParameterKey=MySqlClientPass,ParameterValue=$MySqlClientPass`
+    ParameterKey=bucketName,ParameterValue=$Bucket`
   
    
 
@@ -68,7 +61,6 @@ until [ "$stackstatus" = "CREATE_COMPLETE" ]; do
     fi
   }
 
-myresources '`AWS::EC2::Instance`'
 myresources '`AWS::DynamoDB::Table`'
 myresources '`AWS::S3::Bucket`'
 myresources '`AWS::RDS::DBInstance`'
