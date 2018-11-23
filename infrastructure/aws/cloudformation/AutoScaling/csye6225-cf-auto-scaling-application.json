@@ -639,14 +639,26 @@
           "IpProtocol" : "tcp",
           "FromPort" : "22",
           "ToPort" : "22",
-          "CidrIp" : "0.0.0.0/0"
+          "CidrIp" : { "Ref" : "SSHLocation"}
         },
         {
           "IpProtocol" : "tcp",
           "FromPort" : "80",
           "ToPort" : "80",
-          "SourceSecurityGroupId" : {"Fn::Select" : [0, {"Fn::GetAtt" : ["LoadBalancer", "SecurityGroups"]}]}
-        } ],
+          "SourceSecurityGroupId" : {"Fn::Select" : [0, {"Fn::GetAtt" : ["LoadBalancer", "SecurityGroups"]}]}         
+        },
+        {
+          "IpProtocol" : "tcp",
+          "FromPort" : "8080",
+          "ToPort" : "8080",
+          "SourceSecurityGroupId" : {"Fn::Select" : [0, {"Fn::GetAtt" : ["LoadBalancer", "SecurityGroups"]}]}         
+        },
+        {
+          "IpProtocol" : "tcp",
+          "FromPort" : "443",
+          "ToPort" : "443",
+          "SourceSecurityGroupId" : {"Fn::Select" : [0, {"Fn::GetAtt" : ["LoadBalancer", "SecurityGroups"]}]}         
+        }],
         "VpcId" : {"Fn::ImportValue" : "VpcId"}
       }
     },
