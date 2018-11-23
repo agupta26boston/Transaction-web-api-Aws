@@ -121,7 +121,7 @@
         "IamInstanceProfile" :{"Fn::ImportValue" : "EC2InstanceProfile"},
         "InstanceType": { "Ref": "EC2InstanceType" },           
         "SecurityGroups" : [{ "Ref" : "InstanceSecurityGroup" }],  
-        "AssociatePublicIpAddress": false,         
+        "AssociatePublicIpAddress": true,         
         "BlockDeviceMappings": [
             {
                 "DeviceName" : { "Ref": "EbsDeviceName"},
