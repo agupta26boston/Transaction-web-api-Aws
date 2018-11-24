@@ -1,24 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8f4f8c13-7dec-4ec7-ad0f-0ed834fd9e53" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/AmazonClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/awsconfiguration/AmazonClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hello/Application.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/AttachementRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dao/AttachementRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/Attachment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Attachment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/GreetingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/controller/AppController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/GreetingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/services/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/ImageValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/services/ImageValidator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/MetricsClientBean.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/awsconfiguration/MetricsClientBean.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/S3Services.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/awsconfiguration/S3Services.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/S3ServicesImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/awsconfiguration/S3ServicesImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/Transaction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Transaction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/TransactionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dao/TransactionRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dao/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-    </list>
+    <list default="true" id="8f4f8c13-7dec-4ec7-ad0f-0ed834fd9e53" name="Default Changelist" comment="" />
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -219,7 +202,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="251" />
     <option name="y" value="11" />
     <option name="width" value="1619" />
@@ -284,7 +267,7 @@
     <property name="RequestMappingsPanelWidth1" value="75" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1542851762478" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1542858070462" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="project.structure.last.edited" value="Project" />
@@ -334,7 +317,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="13796000" />
+    <option name="totallyTimeSpent" value="13999000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-1" width="1920" height="958" extended-state="6" />
