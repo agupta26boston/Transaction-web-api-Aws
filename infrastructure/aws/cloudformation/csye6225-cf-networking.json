@@ -237,6 +237,16 @@
         "Value": { "Ref": "NVNCloudRDSSecurityGroup"},
         "Export" : { "Name" : "RDSGroupName" }
       },
+      "NVNCloudSecurityGroupId": {
+        "Description": "ID of NVNCloudSecurityGroup",
+        "Value": { "Fn::GetAtt": ["NVNCloudSecurityGroup","GroupId"]},
+        "Export" : { "Name" : {"Fn::Sub": "EC2GroupId" }}
+      },
+      "NVNCloudSecurityGroupName": {
+        "Description": "ID of NVNCloudSecurityGroup",
+        "Value": { "Ref": "NVNCloudSecurityGroup"},
+        "Export" : { "Name" : "EC2GroupName" }
+      },
       "DBSubnetGroupName":{
         "Description": "Name of DBSubnetGroup",
         "Value": { "Ref": "NVNDBSubnetGroup"},
