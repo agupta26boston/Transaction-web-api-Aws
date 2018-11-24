@@ -74,11 +74,12 @@ myresources '`AWS::ElasticLoadBalancingV2::Listener`'
 myresources '`AWS::ElasticLoadBalancingV2::TargetGroup`'
 myresources '`AWS::CertificateManager::Certificate`'
 myresources '`AWS::IAM::Role`'
+myresources '`AWS::Route53::RecordSet`'
 myresources '`AWS::IAM::ManagedPolicy`'
 myresources '`AWS::CodeDeploy::Application`'
 myresources '`AWS::CodeDeploy::DeploymentGroup`'
-myresources '`AWS::Route53::RecordSet`'
-myresources '`AWS::EC2::SecurityGroup`'
+
+
 
 
   stackstatus=`aws cloudformation describe-stacks --stack-name $StackName --query 'Stacks[*][StackStatus]' --output text`

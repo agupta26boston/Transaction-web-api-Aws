@@ -47,15 +47,6 @@
     "HostedZoneResource": {
       "Description": "HostedZoneResource",
       "Type": "String"
-    },
-    "SSHLocation" : {
-      "Description" : "The IP address range that can be used to SSH to the EC2 instances",
-      "Type": "String",
-      "MinLength": "9",
-      "MaxLength": "18",
-      "Default": "0.0.0.0/0",
-      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
-      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
     }
   },
    "Resources" : {
@@ -120,7 +111,7 @@
         "KeyName" : { "Ref": "KeyPairName" },
         "IamInstanceProfile" :{"Fn::ImportValue" : "EC2InstanceProfile"},
         "InstanceType": { "Ref": "EC2InstanceType" },           
-        "SecurityGroups" : [{ "Ref" : "InstanceSecurityGroup" }],  
+        "SecurityGroups" : [ { "Fn::ImportValue" : "EC2GroupName"} ],
         "AssociatePublicIpAddress": true,         
         "BlockDeviceMappings": [
             {
@@ -340,7 +331,8 @@
     "LoadBalancer" : {
       "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
       "Properties" : {
-        "Name" : "Cloud-LoadBalancer",           
+        "Name" : "Cloud-LoadBalancer",
+        "SecurityGroups" : [ { "Fn::ImportValue" : "EC2GroupName"} ],       
         "Subnets" : [ { "Fn::ImportValue" :"PublicSubnet1"}, { "Fn::ImportValue" :"PublicSubnet2"}, { "Fn::ImportValue" :"PublicSubnet3"} ]
       }
     },
@@ -630,39 +622,6 @@
       "ServiceRoleArn": { "Fn::GetAtt" : [ "CodeDeployServiceRole", "Arn" ] }
       }
     },
-
-    "InstanceSecurityGroup" : {
-      "Type" : "AWS::EC2::SecurityGroup",
-      "Properties" : {
-        "GroupDescription" : "Enable SSH access and HTTP from the load balancer only",
-        "SecurityGroupIngress" : [ {
-          "IpProtocol" : "tcp",
-          "FromPort" : "22",
-          "ToPort" : "22",
-          "CidrIp" : { "Ref" : "SSHLocation"}
-        },
-        {
-          "IpProtocol" : "tcp",
-          "FromPort" : "80",
-          "ToPort" : "80",
-          "SourceSecurityGroupId" : {"Fn::Select" : [0, {"Fn::GetAtt" : ["LoadBalancer", "SecurityGroups"]}]}         
-        },
-        {
-          "IpProtocol" : "tcp",
-          "FromPort" : "8080",
-          "ToPort" : "8080",
-          "SourceSecurityGroupId" : {"Fn::Select" : [0, {"Fn::GetAtt" : ["LoadBalancer", "SecurityGroups"]}]}         
-        },
-        {
-          "IpProtocol" : "tcp",
-          "FromPort" : "443",
-          "ToPort" : "443",
-          "SourceSecurityGroupId" : {"Fn::Select" : [0, {"Fn::GetAtt" : ["LoadBalancer", "SecurityGroups"]}]}         
-        }],
-        "VpcId" : {"Fn::ImportValue" : "VpcId"}
-      }
-    },
-
     "myDNSRecord" : {
       "Type" : "AWS::Route53::RecordSet",
       "Properties" : {
