@@ -1,4 +1,4 @@
-package hello;
+package awsconfiguration;
 
 import com.timgroup.statsd.NoOpStatsDClient;
 import com.timgroup.statsd.NonBlockingStatsDClient;
