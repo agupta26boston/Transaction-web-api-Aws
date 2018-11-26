@@ -56,7 +56,7 @@ public class GreetingController {
 
     private final static Logger logger = LoggerFactory.getLogger(GreetingController.class);
 
-    @Autowired()
+    @Autowired(required = false)
     private StatsDClient statsDClient;
 
     @Autowired
@@ -384,7 +384,7 @@ public class GreetingController {
     @ResponseBody
     public String resetPassword(@RequestBody User details,HttpServletRequest request) throws Exception{
 
-      // statsDClient.incrementCounter("endpoint.user/resetpassword.http.post");
+      statsDClient.incrementCounter("endpoint.user/resetpassword.http.post");
 
 
         JsonObject json = new JsonObject();
