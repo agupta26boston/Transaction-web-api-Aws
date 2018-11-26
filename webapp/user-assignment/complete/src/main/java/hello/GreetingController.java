@@ -1,4 +1,4 @@
-package controller;
+package hello;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,19 +6,14 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
-
-import dao.AttachementRepository;
-import dao.TransactionRepository;
-import dao.UserRepository;
-import services.UserService;
-import awsconfiguration.S3Services;
-import model.Attachment;
-import model.Transaction;
-import model.User;
 import org.slf4j.Logger;
 import java.util.regex.Pattern;
 
@@ -30,10 +25,14 @@ import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.Topic;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.timgroup.statsd.StatsDClient;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,20 +47,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-public class AppController {
+public class GreetingController {
 
     private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
     private User loggedInUser;
 
 
-    private final static Logger logger = LoggerFactory.getLogger(AppController.class);
+    private final static Logger logger = LoggerFactory.getLogger(GreetingController.class);
 
-    @Autowired()
+    @Autowired(required = false)
     private StatsDClient statsDClient;
 
     @Autowired
-    private UserService userService;
+    private GreetingService greetingService;
     @Autowired
     private UserRepository userRepository;
 
@@ -351,7 +350,7 @@ public class AppController {
 
 //        String check= request.getHeader("user-agent");
 //        System.out.println(check);
-        return userService.getAllGreetings();
+        return greetingService.getAllGreetings();
     }
 
     @RequestMapping(value = "/user/register", method = RequestMethod.POST, produces = "application/json")

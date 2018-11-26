@@ -1,6 +1,4 @@
-package model;
-
-import model.Transaction;
+package hello;
 
 import javax.persistence.*;
 
@@ -12,7 +10,7 @@ public class Attachment {
     @Column(unique = true, nullable = false)
     private String attachmentId;
 
-    @OneToOne(targetEntity= Transaction.class)
+    @OneToOne(targetEntity=Transaction.class)
     private Transaction transaction;
 
     private String url;
