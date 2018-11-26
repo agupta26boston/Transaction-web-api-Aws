@@ -27,7 +27,7 @@ echo "Starting to create the stack......"
 echo "$DomainName is my s3 bucket....."
 
 createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
-	--template-body file://csye6225-cf-application.json \
+	--template-body file://csye6225-cf-auto-scaling-application.json \
 	--parameters ParameterKey=EC2ImageId,ParameterValue=ami-9887c6e7 \
     ParameterKey=EC2InstanceType,ParameterValue=t2.micro \
     ParameterKey=EbsDeviceName,ParameterValue=/dev/sda1 \
@@ -36,14 +36,10 @@ createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
     ParameterKey=DBName,ParameterValue=csye6225 \
     ParameterKey=DBUser,ParameterValue=csye6225master \
     ParameterKey=DBPassword,ParameterValue=csye6225password \
-    ParameterKey=DBEngine,ParameterValue=MySQL \
-    ParameterKey=DBAllocatedStorage,ParameterValue=100 \
-    ParameterKey=DBEngineVersion,ParameterValue=5.6.37 \
-    ParameterKey=DBInstanceClass,ParameterValue=db.t2.medium \
-    ParameterKey=DBInstanceIdentifier,ParameterValue=csye6225-fall2018 \
     ParameterKey=KeyPairName,ParameterValue=csyekeypair \
     ParameterKey=bucketName,ParameterValue=$Bucket \
-    ParameterKey=MySqlClientPass,ParameterValue=$MySqlClientPass`
+    ParameterKey=HostedZoneResource,ParameterValue=$DomainName \
+  --capabilities CAPABILITY_NAMED_IAM`
   
    
 
@@ -63,15 +59,28 @@ until [ "$stackstatus" = "CREATE_COMPLETE" ]; do
       echo "$@ creation failed! "
       aws cloudformation describe-stack-events --stack-name $StackName --query 'StackEvents[?(ResourceType=='$@' && ResourceStatus==`CREATE_FAILED`)]'
       echo "deleting stack..... "
-      bash ./csye6225-aws-cf-terminate-application-stack.sh $StackName $DomainName
+      bash ./csye6225-aws-cf-terminate-auto-scaling-application-stack.sh $StackName
       break
     fi
   }
 
-myresources '`AWS::EC2::Instance`'
-myresources '`AWS::DynamoDB::Table`'
-myresources '`AWS::S3::Bucket`'
-myresources '`AWS::RDS::DBInstance`'
+myresources '`AWS::AutoScaling::AutoScalingGroup`'
+myresources '`AWS::AutoScaling::LaunchConfiguration`'
+myresources '`AWS::Logs::LogGroup`'
+myresources '`AWS::AutoScaling::ScalingPolicy`'
+myresources '`AWS::CloudWatch::Alarm`'
+myresources '`AWS::ElasticLoadBalancingV2::LoadBalancer`'
+myresources '`AWS::ElasticLoadBalancingV2::Listener`'
+myresources '`AWS::ElasticLoadBalancingV2::TargetGroup`'
+myresources '`AWS::CertificateManager::Certificate`'
+myresources '`AWS::IAM::Role`'
+myresources '`AWS::Route53::RecordSet`'
+myresources '`AWS::IAM::ManagedPolicy`'
+myresources '`AWS::CodeDeploy::Application`'
+myresources '`AWS::CodeDeploy::DeploymentGroup`'
+
+
+
 
   stackstatus=`aws cloudformation describe-stacks --stack-name $StackName --query 'Stacks[*][StackStatus]' --output text`
   sleep 20

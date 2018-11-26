@@ -4,6 +4,10 @@ stackstatus=""
 createStackStatus=""
 createFlag=true
 DomainName=$2
+AccessKeyId=$3
+SecretAccessKey=$4
+MySqlClientPass=$5
+
 
 if [ -z "$StackName" ]; then
   echo "No stack name provided. Script exiting.."
@@ -13,21 +17,28 @@ if [ -z "$DomainName" ]; then
   echo "No domain name provided. Script exiting.."
   exit 1
 fi
-Bucket=code-deploy.$DomainName
-AppBucket=$DomainName.csye6225.com
+
+Bucket=$DomainName.csye6225.com
 
 echo "Starting $StackName network setup"
 
 echo "Starting to create the stack......"
 
-echo "$Bucket is my code-deploy s3 bucket....."
-echo "$AppBucket is my application s3 bucket....."
+echo "$DomainName is my s3 bucket....."
 
 createStackStatus=`aws cloudformation create-stack --stack-name $StackName \
-  --template-body file://csye6225-cf-cicd.json \
-  --parameters ParameterKey=BucketName,ParameterValue=$Bucket \
-    ParameterKey=AppBucket,ParameterValue=$AppBucket \
-  --capabilities CAPABILITY_NAMED_IAM`
+	--template-body file://csye6225-cf-application.json \
+	--parameters ParameterKey=DBName,ParameterValue=csye6225 \
+    ParameterKey=DBUser,ParameterValue=csye6225master \
+    ParameterKey=DBPassword,ParameterValue=csye6225password \
+    ParameterKey=DBEngine,ParameterValue=MySQL \
+    ParameterKey=DBAllocatedStorage,ParameterValue=100 \
+    ParameterKey=DBEngineVersion,ParameterValue=5.6.37 \
+    ParameterKey=DBInstanceClass,ParameterValue=db.t2.medium \
+    ParameterKey=DBInstanceIdentifier,ParameterValue=csye6225-fall2018 \
+    ParameterKey=bucketName,ParameterValue=$Bucket`
+  
+   
 
 if [ -z "$createStackStatus" ]; then
   echo "Failed to create stack"
@@ -50,12 +61,9 @@ until [ "$stackstatus" = "CREATE_COMPLETE" ]; do
     fi
   }
 
-  myresources '`AWS::S3::Bucket`'
-  myresources '`AWS::IAM::Policy`'
-  myresources '`AWS::IAM::ManagedPolicy`'
-  myresources '`AWS::IAM::InstanceProfile`'
-  myresources '`AWS::IAM::Role`'
-  
+myresources '`AWS::DynamoDB::Table`'
+myresources '`AWS::S3::Bucket`'
+myresources '`AWS::RDS::DBInstance`'
 
   stackstatus=`aws cloudformation describe-stacks --stack-name $StackName --query 'Stacks[*][StackStatus]' --output text`
   sleep 20
