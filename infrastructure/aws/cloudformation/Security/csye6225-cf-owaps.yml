@@ -36,7 +36,7 @@ Parameters:
     AllowedValues:
       - Global
       - Regional
-    Default: Global
+    Default: Regional
   ruleAction:
     Type: String
     Description: The type of action you want to iplement for the rules in this set. Valid options are COUNT or BLOCK.
@@ -1166,46 +1166,14 @@ Resources:
             Type: !Ref ruleAction
           Priority: 100
           RuleId: !Ref wafgAdminAccessRule
-  myDistribution:
-   Type: "AWS::CloudFront::Distribution"
-   Properties: 
-    DistributionConfig: 
-      WebACLId: 
-       Ref: "wafgOwaspACL"
-      Origins: 
-        - 
-          DomainName: "csye6225-fall2018-bengret.me"
-          Id: "myCustomOrigin"
-          CustomOriginConfig: 
-            HTTPPort: "80"
-            HTTPSPort: "443"
-            OriginProtocolPolicy: "http-only"
-      Enabled: "true"
-      Comment: "TestDistribution"
-      DefaultRootObject: "index.html"
-      DefaultCacheBehavior: 
-        TargetOriginId: "myCustomOrigin"
-        SmoothStreaming: "false"
-        ForwardedValues: 
-          QueryString: "false"
-          Cookies: 
-            Forward: "all"
-        ViewerProtocolPolicy: "allow-all"
-      CustomErrorResponses: 
-        - 
-          ErrorCode: "404"
-          ResponsePagePath: "/error-pages/404.html"
-          ResponseCode: "200"
-          ErrorCachingMinTTL: "30"
-      PriceClass: "PriceClass_200"
-      Restrictions:
-        GeoRestriction: 
-          RestrictionType: "whitelist"
-          Locations: 
-            - "AQ"
-            - "CV"
-      ViewerCertificate: 
-        CloudFrontDefaultCertificate: "true"
+  MyWebACLAssociation:
+   Type: "AWS::WAFRegional::WebACLAssociation"
+   DependsOn: wafrOwaspACL
+   Properties:
+    ResourceArn:
+      Fn::ImportValue: LoadBalancerArn
+    WebACLId:
+      Ref: wafrOwaspACL
           
 ## ::OUTPUTS::
 ## Outputs useful in other templates

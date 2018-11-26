@@ -646,8 +646,8 @@
   "Outputs": {
     "LoadBalancerArn": {
       "Description": "LoadBalancer Arn",
-      "Value": { "Fn::GetAtt": ["LoadBalancer","Arn"]},
-        "Export" : { "Name" : {"Fn::Sub": "LoadBalancerArn" }}
+      "Value": { "Ref": "LoadBalancer"},
+      "Export" : { "Name" : "LoadBalancerArn" }
     }
   }
 }
