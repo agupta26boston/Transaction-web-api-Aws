@@ -1,7 +1,8 @@
-package model;
+package hello;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.*;
 
 @Entity
 @Table(name="transaction")
