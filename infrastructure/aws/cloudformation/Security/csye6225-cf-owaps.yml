@@ -67,7 +67,7 @@ Parameters:
   maxExpectedBodySize:
     Type: Number
     Description: Maximum number of bytes allowed in the body of the request. If you do not plan to allow large uploads, set it to the largest payload value that makes sense for your web application. Accepting unnecessarily large values can cause performance issues, if large payloads are used as an attack vector against your web application.
-    Default: 4096
+    Default: 10
   maxExpectedCookieSize:
     Type: Number
     Description: Maximum number of bytes allowed in the cookie header. The maximum size should be less than 4096, the size is determined by the amount of information your web application stores in cookies. If you only pass a session token via cookies, set the size to no larger than the serialized size of the session token and cookie metadata.
@@ -819,78 +819,8 @@ Resources:
 ## OWASP Top 10 A8
 ## CSRF token enforcement example
 ## Enforce the presence of CSRF token in request header
-  wafrCSRFMethodStringSet:
-    Type: AWS::WAFRegional::ByteMatchSet
-    Condition: isRegional
-    Properties:
-      Name: !Join ['-', [!Ref stackPrefix, 'match-csrf-method']]
-      ByteMatchTuples:
-        - FieldToMatch:
-            Type: METHOD
-          PositionalConstraint: EXACTLY
-          TargetString: post
-          TextTransformation: LOWERCASE
-  wafgCSRFMethodStringSet:
-    Type: AWS::WAF::ByteMatchSet
-    Condition: isGlobal
-    Properties:
-      Name: !Join ['-', [!Ref stackPrefix, 'match-csrf-method']]
-      ByteMatchTuples:
-        - FieldToMatch:
-            Type: METHOD
-          PositionalConstraint: EXACTLY
-          TargetString: post
-          TextTransformation: LOWERCASE
-  wafrCSRFTokenSizeConstraint:
-    Type: AWS::WAFRegional::SizeConstraintSet
-    Condition: isRegional
-    Properties:
-      Name: !Join ['-', [!Ref stackPrefix, 'match-csrf-token']]
-      SizeConstraints:
-        - FieldToMatch:
-            Type: HEADER
-            Data: !Ref csrfExpectedHeader
-          TextTransformation: NONE
-          ComparisonOperator: EQ
-          Size: !Ref csrfExpectedSize
-  wafgCSRFTokenSizeConstraint:
-    Type: AWS::WAF::SizeConstraintSet
-    Condition: isGlobal
-    Properties:
-      Name: !Join ['-', [!Ref stackPrefix, 'match-csrf-token']]
-      SizeConstraints:
-        - FieldToMatch:
-            Type: HEADER
-            Data: !Ref csrfExpectedHeader
-          TextTransformation: NONE
-          ComparisonOperator: EQ
-          Size: !Ref csrfExpectedSize
-  wafrCSRFRule:
-    Type: AWS::WAFRegional::Rule
-    Condition: isRegional
-    Properties:
-      MetricName: !Join ['', [!Ref stackPrefix, 'enforcecsrf']]
-      Name: !Join ['-', [!Ref stackPrefix, 'enforce-csrf']]
-      Predicates:
-        - Type: ByteMatch
-          Negated: false
-          DataId: !Ref wafrCSRFMethodStringSet
-        - Type: SizeConstraint
-          Negated: true
-          DataId: !Ref wafrCSRFTokenSizeConstraint
-  wafgCSRFRule:
-    Type: AWS::WAF::Rule
-    Condition: isGlobal
-    Properties:
-      MetricName: !Join ['', [!Ref stackPrefix, 'enforcecsrf']]
-      Name: !Join ['-', [!Ref stackPrefix, 'enforce-csrf']]
-      Predicates:
-        - Type: ByteMatch
-          Negated: false
-          DataId: !Ref wafgCSRFMethodStringSet
-        - Type: SizeConstraint
-          Negated: true
-          DataId: !Ref wafgCSRFTokenSizeConstraint
+
+    
 
 ## 9.
 ## OWASP Top 10 A9
@@ -1105,10 +1035,7 @@ Resources:
             Type: !Ref ruleAction
           Priority: 70
           RuleId: !Ref wafrPHPInsecureRule
-        - Action:
-            Type: !Ref ruleAction
-          Priority: 80
-          RuleId: !Ref wafrCSRFRule
+        
         - Action:
             Type: !Ref ruleAction
           Priority: 90
@@ -1154,10 +1081,7 @@ Resources:
             Type: !Ref ruleAction
           Priority: 70
           RuleId: !Ref wafgPHPInsecureRule
-        - Action:
-            Type: !Ref ruleAction
-          Priority: 80
-          RuleId: !Ref wafgCSRFRule
+        
         - Action:
             Type: !Ref ruleAction
           Priority: 90
@@ -1206,8 +1130,8 @@ Outputs:
     Value: !If [ isRegional, !Ref wafrAdminAccessRule, !Ref wafgAdminAccessRule ]
   wafAdminAccessRuleMetric:
     Value: !Join ['', [!Ref stackPrefix, 'detectadminaccess']]
-  wafCSRFRule:
-    Value: !If [ isRegional, !Ref wafrCSRFRule, !Ref wafgCSRFRule ]
+
+    
   wafCSRFRuleMetric:
     Value: !Join ['', [!Ref stackPrefix, 'enforcecsrf']]
   wafSSIRule:
