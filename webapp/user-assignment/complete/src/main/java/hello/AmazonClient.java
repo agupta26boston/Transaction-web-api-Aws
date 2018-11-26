@@ -1,4 +1,4 @@
-package awsconfiguration;
+package hello;
 
 
 import com.amazonaws.auth.*;

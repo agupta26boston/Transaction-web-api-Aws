@@ -1,4 +1,4 @@
-package awsconfiguration;
+package hello;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.multipart.MultipartFile;

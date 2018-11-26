@@ -1,6 +1,5 @@
-package dao;
+package hello;
 
-import model.Attachment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
